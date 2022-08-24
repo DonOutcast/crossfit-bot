@@ -1,12 +1,14 @@
+import asyncio
+
 from aiogram import types
 from aiogram.dispatcher.filters import Command
 from loader import dp, bot
-from keyboards import set_timer, change_the_time, res_time
+from keyboards import inline_set_timer, change_the_time, res_time, inline_start_timer, start_timer
 
 
 @dp.message_handler(Command('test'))
-async def enter_test(mes: types.Message):
-    await mes.answer('Вы нажали старт', reply_markup=await set_timer())
+async def get_timer(mes: types.Message):
+    await mes.answer('Вы нажали старт', reply_markup=await inline_set_timer())
 
 
 @dp.callback_query_handler(change_the_time.filter())
@@ -16,13 +18,42 @@ async def enter_test(call: types.CallbackQuery, callback_data: dict):
         chat_id=call.message.chat.id,
         message_id=call.message.message_id,
         text=call.message.text,
-        reply_markup=await set_timer(callback_data['time']))
+        reply_markup=await inline_set_timer(callback_data['time']))
 
 
 @dp.callback_query_handler(res_time.filter())
 async def enter_test(call: types.CallbackQuery, callback_data: dict):
     await call.message.delete()
-    await call.message.answer(f'Таймер на {callback_data["time"]} секунд')
+    time = callback_data["time"]
+    await call.message.answer(f'Таймер на {time} секунд', reply_markup=await inline_start_timer(time))
+
+
+@dp.callback_query_handler(start_timer.filter())
+async def enter_test(call: types.CallbackQuery, callback_data: dict):
+    # await call.message.delete()
+    time = int(callback_data["time"])
+    start_time = 3
+    for first in range(start_time):
+        await asyncio.sleep(1)
+        await bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=f'Через {start_time-first} запустится таймер на {time} секунд',
+            reply_markup=None)
+
+    for last in range(time):
+        await asyncio.sleep(1)
+        await bot.edit_message_text(
+            chat_id=call.message.chat.id,
+            message_id=call.message.message_id,
+            text=f'Осталось {time-last} сек',
+            reply_markup=None)
+
+    await bot.edit_message_text(
+        chat_id=call.message.chat.id,
+        message_id=call.message.message_id,
+        text=f'Время вышло',
+        reply_markup=None)
 
 
 @dp.callback_query_handler()

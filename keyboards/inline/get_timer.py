@@ -6,7 +6,7 @@ change_the_time = CallbackData('new_time', 'time')
 res_time = CallbackData('res_time', 'time')
 
 
-async def set_timer(input_time: int = 0) -> InlineKeyboardMarkup:
+async def inline_set_timer(input_time: int = 0) -> InlineKeyboardMarkup:
     input_time = int(input_time)
     if input_time < 0:
         input_time = 0
