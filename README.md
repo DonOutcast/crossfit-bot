@@ -1,2 +1,1 @@
 # crossfit-bot
-test
