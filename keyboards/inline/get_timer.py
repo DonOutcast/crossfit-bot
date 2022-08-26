@@ -4,7 +4,8 @@ import time
 
 change_the_time = CallbackData('new_time', 'time')
 res_time = CallbackData('res_time', 'time')
-nums = ["0️⃣","1️⃣","2️⃣","3️⃣","4️⃣","5️⃣","6️⃣","7️⃣","8️⃣","9️⃣"]
+nums = ["0️⃣", "1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣", "7️⃣", "8️⃣", "9️⃣"]
+
 
 async def inline_set_timer(input_time: int = 0) -> InlineKeyboardMarkup:
     input_time = int(input_time)
@@ -35,8 +36,7 @@ async def inline_set_timer(input_time: int = 0) -> InlineKeyboardMarkup:
         else:
             new_text += char
 
-
-    line = [InlineKeyboardButton(text=new_text, callback_data='-'),]
+    line = [InlineKeyboardButton(text=new_text, callback_data='-'), ]
     stolb.append(line)
 
     line = [InlineKeyboardButton(text='🔽', callback_data=change_the_time.new(time=str(input_time - minut_m))),
