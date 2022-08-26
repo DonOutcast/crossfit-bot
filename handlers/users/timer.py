@@ -8,7 +8,14 @@ from keyboards import inline_set_timer, change_the_time, res_time, inline_start_
 
 @dp.message_handler(Command('test'))
 async def get_timer(mes: types.Message):
-    await mes.answer('Вы нажали старт', reply_markup=await inline_set_timer())
+    await mes.answer('Вы зашли в тест функции\n'
+                     'Дання функция находится в разработке\n'
+                     'Это часть большого проекта, так что не стоит рассматривать данную функцию как отдельную программу')
+    await mes.answer('Вам представлен инструмент для настройки и запуска таймера\n'
+                     'Нажимая на стрелочки настройте время для таймера\n'
+                     'Потом нажмите на кнопку "Принять"\n'
+                     'Минуты - Секунды'
+                     , reply_markup=await inline_set_timer())
 
 
 @dp.callback_query_handler(change_the_time.filter())
