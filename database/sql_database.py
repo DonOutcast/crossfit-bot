@@ -1,5 +1,6 @@
 import sqlite3 as sq
 
+
 class Database:
     """For database"""
     def __init__(self, name: str) -> None:
