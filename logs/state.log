@@ -1,3 +1,0 @@
-2022-08-30 11:39:15,725 - Doni - INFO - This is state data: {'name_of_training': 'Пахать'} and type: <class 'dict'>
-2022-08-30 11:39:20,816 - Doni - INFO - This is state data: {'name_of_training': 'Пахать', 'lvl_of_training': 'Хард'} and type: <class 'dict'>
-2022-08-30 11:39:29,653 - Doni - INFO - This is state data: {'name_of_complex': 'Бежать'} and type: <class 'dict'>

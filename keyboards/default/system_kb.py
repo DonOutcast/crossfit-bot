@@ -6,3 +6,10 @@ def get_menu_keyboard():
     keyboards = ReplyKeyboardMarkup(resize_keyboard=True)
     keyboards.add(add_button)
     return keyboards
+
+
+def back_menu_keyboard():
+    add_button = KeyboardButton("Вернуться в главное меню 📜")
+    keyboards = ReplyKeyboardMarkup(resize_keyboard=True)
+    keyboards.add(add_button)
+    return keyboards
