@@ -37,11 +37,11 @@ class Settings(BaseSettings):
     redis_dsn: RedisDsn
 
     database_mode: str
-    postgres_user: str = Field(..., env="POSTGRES_DATABASE_USER")
-    postgres_pass: str = Field(..., env="POSTGRES_DATABASE_PASSWORD")
-    postgres_db: str = Field(..., env="POSTGRES_DATABASE_NAME")
-    postgres_host: str = Field(..., env="POSTGRES_DATABASE_HOST")
-    postgres_port: str = Field(..., env="POSTGRES_DATABASE_PORT")
+    postgres_user: str = Field(..., env="POSTGRES_USER")
+    postgres_pass: str = Field(..., env="POSTGRES_PASSWORD")
+    postgres_db: str = Field(..., env="POSTGRES_DB_NAME")
+    postgres_host: str = Field(..., env="POSTGRES_HOST")
+    postgres_port: str = Field(..., env="POSTGRES_PORT")
     postgres_dsn: Optional[PostgresDsn]
 
     debug: bool
@@ -161,8 +161,7 @@ LOGGING = {
 }
 
 
-def tortoise_settings() -> Dict[str, Any]:
-    return {
+DATABASE_CONFIG = {
         "connections": {
             "default": {
                 "engine": "tortoise.backends.asyncpg",
@@ -176,12 +175,11 @@ def tortoise_settings() -> Dict[str, Any]:
             },
         },
         "apps": {
-            "app": {
                 "models": [
-                    ".models.user",
-                    ".models.target",
+                    "model.db.models.user",
+                    "model.db.models.target",
+                    "aerich.models",
                 ],
-            },
         },
         "use_tz": False,
     }

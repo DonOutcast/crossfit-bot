@@ -4,7 +4,6 @@ from aiogram.types import Message
 
 from model.template.templates import render
 
-from model.services.categories import Categories
 
 from model.keyboards.core_buttons import generate_keyboard
 

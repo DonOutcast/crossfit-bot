@@ -3,8 +3,9 @@ from aiogram import Dispatcher
 from aiogram import exceptions
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiohttp import ClientTimeout
+from tortoise import Tortoise
 
-from configurate.config import settings
+from configurate.config import settings, DATABASE_CONFIG
 
 from model.handlers.user import user_router
 from model.handlers.admin import admin_router
@@ -20,6 +21,11 @@ from model.middlewares.chataction import ChatActionMiddleware
 from model.middlewares.aiohttp import AiohttpSessionMiddleware
 from model.services import broadcaster
 from model.commnad_scope.scopes import SetCommands
+
+from model.database.models import (
+    User,
+    Target
+)
 
 
 class Controller(object):
@@ -70,6 +76,10 @@ class Controller(object):
             await self._on_startup(settings.admins)
             await self.bot.delete_webhook(drop_pending_updates=True)
             await self.dp.start_polling(self.bot, allowed_updates=self.dp.resolve_used_update_types())
+
+            await Tortoise.init(config=DATABASE_CONFIG)
+            await Tortoise.generate_schemas()
+
         except exceptions as ex:
             print(ex)
         finally:
