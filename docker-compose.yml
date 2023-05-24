@@ -1,0 +1,30 @@
+version: "3.8"
+services:
+  db_psql:
+    build:
+      context: .
+      dockerfile: devops/postgres/Dockerfile
+    env_file:
+      - ".env"
+    volumes:
+      - ./data/db_psql:/var/lib/postgresql/data
+    ports:
+      - "${PSQL_EXTERNAL_PORT}:${PSQL_INTERNAL_PORT}"
+    container_name: "${PSQL_CONTAINER_NAME}"
+    image: "${PSQL_IMAGE_NAME}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  tg_bot:
+    build:
+      context: .
+      dockerfile: devops/tg_bot/Dockerfile
+    container_name: ${APP_CONTAINER_NAME}
+    env_file:
+      - ".env"
+    depends_on:
+      db_psql:
+        condition: service_healthy

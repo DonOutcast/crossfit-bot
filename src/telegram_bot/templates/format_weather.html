@@ -1,0 +1,8 @@
+{% if weather %}
+    {{ weather.city }}, температура {{ weather.temperature }}°C, {{ weather.weather_type }}<br>
+    Восход: {{ weather.sunrise.strftime("%H:%M") }}<br>
+    Закат: {{ weather.sunset.strftime("%H:%M") }}<br>
+{% else %}
+    Упс я ничего не смог найти!
+{% endif %}
+

@@ -1,0 +1,10 @@
+<b>
+    Категория трат:
+</b><br><br>
+{% for element in categories %}
+    * {{ element.name }} (
+    {%- for as in element.aliases -%}
+         {{ as }}{{ ", " if not loop.last else "" }}
+    {%- endfor -%}
+)<br>
+{% endfor %}

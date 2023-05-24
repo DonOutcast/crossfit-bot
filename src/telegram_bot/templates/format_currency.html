@@ -1,0 +1,6 @@
+{% if currency %}
+    {{ currency.name }} ({{ currency.nominal }} шт.) стоит(ят)<br>
+    {{ currency.exchange_rate }} руб. <br>
+{% else %}
+    Упс я ничего не смог найти!
+{% endif %}
