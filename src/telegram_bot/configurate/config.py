@@ -161,25 +161,3 @@ LOGGING = {
 }
 
 
-DATABASE_CONFIG = {
-        "connections": {
-            "default": {
-                "engine": "tortoise.backends.asyncpg",
-                "credentials": {
-                    "host": os_getenv("POSTGRES_HOST"),
-                    "port": os_getenv("POSTGRES_PORT"),
-                    "user": os_getenv("POSTGRES_USER"),
-                    "password": os_getenv("POSTGRES_PASSWORD"),
-                    "database": os_getenv("POSTGRES_DB_NAME")
-                },
-            },
-        },
-        "apps": {
-                "models": [
-                    "model.db.models.user",
-                    "model.db.models.target",
-                    "aerich.models",
-                ],
-        },
-        "use_tz": False,
-    }

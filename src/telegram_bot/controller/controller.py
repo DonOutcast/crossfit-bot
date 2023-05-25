@@ -5,7 +5,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiohttp import ClientTimeout
 from tortoise import Tortoise
 
-from configurate.config import settings, DATABASE_CONFIG
+from configurate.config import settings
 
 from model.handlers.user import user_router
 from model.handlers.admin import admin_router
@@ -22,10 +22,7 @@ from model.middlewares.aiohttp import AiohttpSessionMiddleware
 from model.services import broadcaster
 from model.commnad_scope.scopes import SetCommands
 
-from model.database.models import (
-    User,
-    Target
-)
+from model.database.config import DATABASE_CONFIG
 
 
 class Controller(object):
@@ -54,6 +51,13 @@ class Controller(object):
     async def _on_startup(self, admin_ids: list[int]):
         await broadcaster.broadcast(self.bot, admin_ids, "Бот запущен!")
 
+    async def _start_tortoise(self) -> None:
+        await Tortoise.init(config=DATABASE_CONFIG)
+        await Tortoise.generate_schemas()
+
+    async def _stop_tortoise(self) -> None:
+        await Tortoise.close_connections()
+
     async def main(self):
 
         routers = [
@@ -77,10 +81,10 @@ class Controller(object):
             await self.bot.delete_webhook(drop_pending_updates=True)
             await self.dp.start_polling(self.bot, allowed_updates=self.dp.resolve_used_update_types())
 
-            await Tortoise.init(config=DATABASE_CONFIG)
-            await Tortoise.generate_schemas()
+            await self._stop_tortoise()
 
         except exceptions as ex:
             print(ex)
         finally:
             await self.bot.session.close()
+            await self._stop_tortoise()

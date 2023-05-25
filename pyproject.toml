@@ -1,0 +1,4 @@
+[tool.aerich]
+tortoise_orm = "src.telegram_bot.model.database.config.DATABASE_CONFIG"
+location = "./migrations"
+src_folder = "./."
