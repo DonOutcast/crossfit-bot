@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from model.template.templates import RenderTemplate
 from model.keyboards.core_buttons import generate_keyboard
 from model.services.crud_currency import fetch_xml, fetch_one_currency
-from model.services.currency_base import get_all_currency, get_course, check_count, get_course_from_inlines
+from model.services.currency_base import get_course, check_count, get_course_from_inlines
 from model.keyboards.currency_buttons import get_currency_markup
 from model.call_back_data.call_back_data_currency import ChangePage, CourseCurrency
 from model.services.currency_help import Course
