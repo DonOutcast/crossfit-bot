@@ -17,7 +17,6 @@ menu_keyboard = generate_keyboard(
     ],
 )
 
-
 back_to_menu_router = Router()
 headers = {"throttling_key": "default", "long_operation": "typing"}
 
@@ -27,7 +26,7 @@ async def cmd_cancel_registration(message: types.Message, state: FSMContext):
     await message.delete()
     try:
         await message.delete(message_id=message.message_id - 1)
-    except:
+    except (Exception,):
         pass
     current_state = await state.get_state()
     if current_state is None:

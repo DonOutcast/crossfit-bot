@@ -3,8 +3,8 @@ from datetime import datetime
 
 
 class User(models.Model):
-    id = fields.BigIntField(pk=True)
-    user_name = fields.CharField(max_length=100, verbose_name="Имя пользователя в телеграмме", unique=True)
+    id = fields.BigIntField(pk=True, generated=True)
+    user_name = fields.BigIntField(verbose_name="Имя пользователя в телеграмме", unique=True)
     account_id = fields.BigIntField(verbose_name="ID пользователя в телеграмме", unique=True)
     name = fields.CharField(max_length=50, verbose_name="Имя")
     type = fields.CharField(max_length=10, choices=["Новичёк", "Продолжаю", "Профи"])

@@ -9,6 +9,7 @@ from configurate.config import settings
 
 from model.handlers.user import user_router
 from model.handlers.admin import admin_router
+from model.handlers.login import login_router
 from model.handlers.weather import weather_router
 from model.handlers.back_to_menu import back_to_menu_router
 from model.handlers.currency import currency_router
@@ -63,6 +64,7 @@ class Controller(object):
         routers = [
             admin_router,
             user_router,
+            login_router,
             back_to_menu_router,
             weather_router,
             currency_router,
@@ -81,10 +83,10 @@ class Controller(object):
             await self.bot.delete_webhook(drop_pending_updates=True)
             await self.dp.start_polling(self.bot, allowed_updates=self.dp.resolve_used_update_types())
 
-            await self._stop_tortoise()
+            # await self._start_tortoise()
 
         except exceptions as ex:
             print(ex)
         finally:
             await self.bot.session.close()
-            await self._stop_tortoise()
+            # await self._stop_tortoise()

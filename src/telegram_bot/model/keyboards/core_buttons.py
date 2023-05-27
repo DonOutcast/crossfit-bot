@@ -1,17 +1,22 @@
 from typing import List
-from aiogram.types.keyboard_button import KeyboardButton
-from aiogram.types.reply_keyboard_markup import ReplyKeyboardMarkup
 
+from aiogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    KeyboardButton,
+    ReplyKeyboardMarkup
+)
 
+from model.call_back_data.login import LoginNoCallBackData, LoginYesCallBackData
 
 menu_buttons = [
     [KeyboardButton(text="Погода 🌤️"), KeyboardButton(text="Валюта 💰")],
     [KeyboardButton(text="Милота 🐱"), KeyboardButton(text="Опрос 📝")],
-    
+
 ]
 
 menu_keyboard = ReplyKeyboardMarkup(
-    keyboard=menu_buttons, resize_keyboard=True,)
+    keyboard=menu_buttons, resize_keyboard=True, )
 
 
 def generate_keyboard(buttons: List[List[str]], resize_keyboard=True, request_location=False) -> ReplyKeyboardMarkup:
@@ -38,6 +43,32 @@ def generate_keyboard(buttons: List[List[str]], resize_keyboard=True, request_lo
         keyboard.append(row)
     return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=resize_keyboard)
 
-# [
-#     KeyboardButton(text='Локация', request_location=True),
-# ],
+
+def generate_inline_keyboard(buttons: List[List[tuple[str, str]]]) -> InlineKeyboardMarkup:
+    """
+    Генерирует объект InlineKeyboardMarkup с заданными кнопками.
+
+    :param buttons: список списков пар (текст кнопки, callback_data)
+    :return: объект InlineKeyboardMarkup
+    :raises ValueError: если переданный параметр buttons пуст или содержит пустые списки
+    """
+    if not buttons or any(not row for row in buttons):
+        raise ValueError("buttons parameter cannot be empty or contain empty lists")
+
+    keyboard = []
+    for button_row in buttons:
+        row = []
+        for button_text, callback_data in button_row:
+            row.append(InlineKeyboardButton(text=button_text, callback_data=callback_data))
+        keyboard.append(row)
+    return InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+
+def get_login_inline_markup() -> InlineKeyboardMarkup:
+    buttons = [
+        [
+            InlineKeyboardButton(text="Да", callback_data=LoginYesCallBackData(answer=True).pack()),
+            InlineKeyboardButton(text="Нет", callback_data=LoginNoCallBackData(answer=False).pack())
+        ]
+    ]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
