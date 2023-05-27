@@ -7,7 +7,7 @@ class User(models.Model):
     user_name = fields.BigIntField(verbose_name="Имя пользователя в телеграмме", unique=True)
     account_id = fields.BigIntField(verbose_name="ID пользователя в телеграмме", unique=True)
     name = fields.CharField(max_length=50, verbose_name="Имя")
-    type = fields.CharField(max_length=10, choices=["Новичёк", "Продолжаю", "Профи"])
+    type = fields.CharField(max_length=10, choices=["Новичок", "Продолжаю", "Профи"])
     image = fields.BinaryField(verbose_name="Фото")
     height = fields.FloatField(verbose_name="Рост", blank=True, null=True)
     weight = fields.FloatField(verbose_name="Вес", blank=True, null=True)

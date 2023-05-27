@@ -1,0 +1,1 @@
+from .inline_keyboards import get_type_keyboards

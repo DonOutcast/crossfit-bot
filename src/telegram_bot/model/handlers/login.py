@@ -5,6 +5,12 @@ from aiogram.types import Message, CallbackQuery
 from model.fsm.login import LoginStates
 from model.template.templates import render
 from model.keyboards.core_buttons import generate_keyboard, get_login_inline_markup
+from model.keyboards import get_type_keyboards
+from model.call_back_data import (
+    TypeBeginnerCallBackData,
+    TypeProceedingCallBackData,
+    TypeProfessionalBackData
+)
 from model.call_back_data.login import LoginYesCallBackData, LoginNoCallBackData
 from model.images.images_ids import (
     LOGIN,
@@ -76,21 +82,47 @@ async def cmd_login_name(message: Message, state: FSMContext) -> None:
         sticker=TYPE_MARKUP
     )
     await message.answer(
-        text=render.render_template(template_name="login/type.html")
+        text=render.render_template(template_name="login/type.html"),
+        reply_markup=get_type_keyboards()
     )
     await state.set_state(LoginStates.type)
 
 
-@login_router.message(LoginStates.type, flags=headers)
-async def cmd_login_type(message: Message, state: FSMContext) -> None:
-    await state.update_data(type=message.text)
+@login_router.callback_query(TypeBeginnerCallBackData.filter(), flags=headers)
+async def cmd_login_beginner(query: CallbackQuery, state: FSMContext) -> None:
+    await state.update_data(type="Новичок")
     await state.set_state(LoginStates.image)
-    await message.answer_sticker(
+    await query.message.answer_sticker(
         sticker=PHOTO
     )
-    await message.answer(
+    await query.message.answer(
         text=render.render_template(template_name="login/image.html")
     )
+
+
+@login_router.callback_query(TypeProceedingCallBackData.filter(), flags=headers)
+async def cmd_login_beginner(query: CallbackQuery, state: FSMContext) -> None:
+    await state.update_data(type="Продолжаю")
+    await state.set_state(LoginStates.image)
+    await query.message.answer_sticker(
+        sticker=PHOTO
+    )
+    await query.message.answer(
+        text=render.render_template(template_name="login/image.html")
+    )
+
+
+@login_router.callback_query(TypeProfessionalBackData.filter(), flags=headers)
+async def cmd_login_beginner(query: CallbackQuery, state: FSMContext) -> None:
+    await state.update_data(type="Профи")
+    await state.set_state(LoginStates.image)
+    await query.message.answer_sticker(
+        sticker=PHOTO
+    )
+    await query.message.answer(
+        text=render.render_template(template_name="login/image.html")
+    )
+
 
 
 @login_router.message(LoginStates.image, flags=headers)
@@ -121,6 +153,7 @@ async def cmd_login_height(message: Message, state: FSMContext) -> None:
 async def cmd_login_weight(message: Message, state: FSMContext) -> None:
     await state.update_data(weight=message.text)
     data = await state.get_data()
+    print(data)
     await state.clear()
     await message.answer(
         text=render.render_template(template_name="login/success.html")
