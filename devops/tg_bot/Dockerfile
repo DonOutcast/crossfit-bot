@@ -28,7 +28,6 @@ RUN curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appi
 
 # Копируем и настраиваем приложение
 COPY ../../src/telegram_bot /code/src
-COPY ../../pyproject.toml /code
 
 # Устанавливаем права доступа
 USER root
@@ -41,7 +40,11 @@ USER nobody:nogroup
 # Проверяем доступность сервиса
 HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:5000/ || exit 1
 
-ENTRYPOINT aerich init -t src.model.database.config.DATABASE_CONFIG && \
-           aerich init-db && \
-           aerich migrate && \
-           python3 -u src/__main__.py
+#ENTRYPOINT aerich init -t src.model.database.config.DATABASE_CONFIG && \
+#           aerich init-db && \
+#           aerich migrate && \
+#           python3 -u src/__main__.py
+
+ENTRYPOINT cd src/ && alembic revision --autogenerate && \
+           alembic  upgrade head && \
+           python3 -u __main__.py

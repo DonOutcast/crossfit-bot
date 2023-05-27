@@ -1,12 +1,14 @@
 from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from model.fsm.login import LoginStates
 from model.utils import check_float_value
 from model.template.templates import render
 from model.keyboards.core_buttons import generate_keyboard, get_login_inline_markup
 from model.keyboards import get_type_keyboards
+from model.database import add_user, user_exists
 from model.call_back_data import (
     TypeBeginnerCallBackData,
     TypeProceedingCallBackData,
@@ -178,12 +180,21 @@ async def cmd_login_height(message: Message, state: FSMContext) -> None:
 
 
 @login_router.message(LoginStates.weight, flags=headers)
-async def cmd_login_weight(message: Message, state: FSMContext) -> None:
+async def cmd_login_weight(message: Message, state: FSMContext, session: AsyncSession) -> None:
     if check_float_value(message.text):
         await state.update_data(weight=message.text)
         data = await state.get_data()
-        print(data)
         await state.clear()
+        await add_user(
+            session=session,
+            user_name=message.from_user.username,
+            account_id=message.from_user.id,
+            name=data.get("name"),
+            type_of_user=data.get("type"),
+            image=data.get("image"),
+            height=data.get("height"),
+            weight=data.get("weight")
+        )
         await message.answer(
             text=render.render_template(template_name="login/success.html")
         )
