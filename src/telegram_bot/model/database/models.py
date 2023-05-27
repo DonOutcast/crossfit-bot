@@ -28,7 +28,7 @@ class Target(models.Model):
         related_name="user_target"
     )
     name = fields.CharField(max_length=100, verbose_name="Цель")
-    begin = fields.DatetimeField(default=datetime.now().strftime("%d/%m/%Y"), verbose_name="Дата начала")
+    begin = fields.DatetimeField(default=datetime.now(), verbose_name="Дата начала")
     end = fields.DatetimeField(vrbose_name="Дата окончания")
     status = fields.BooleanField(default=False, verbose_name="Статус достижения цели")
 

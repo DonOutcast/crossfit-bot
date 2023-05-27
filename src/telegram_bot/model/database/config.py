@@ -6,7 +6,7 @@ DATABASE_CONFIG = {
         'default': {
             'engine': 'tortoise.backends.asyncpg',
             'credentials': {
-                'host': 'localhost',
+                'host': 'db_psql',
                 'port': '5432',
                 'user': 'postgres',
                 'password': 'postgres',
@@ -17,7 +17,7 @@ DATABASE_CONFIG = {
     'apps': {
         'models': {
             'models': [
-                "src.telegram_bot.model.database.models",
+                "src.model.database.models",
                 "aerich.models",
             ],
             'default_connection': 'default',
