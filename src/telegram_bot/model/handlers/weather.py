@@ -52,7 +52,7 @@ def check_coordinates(coordinate: str) -> bool:
     try:
         float(coordinate)
         return True
-    except Exception:
+    except (Exception, ):
         return False
 
 

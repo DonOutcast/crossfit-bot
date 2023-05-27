@@ -1,8 +1,9 @@
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
 from model.fsm.login import LoginStates
+from model.utils import check_float_value
 from model.template.templates import render
 from model.keyboards.core_buttons import generate_keyboard, get_login_inline_markup
 from model.keyboards import get_type_keyboards
@@ -83,7 +84,7 @@ async def cmd_login_yes(query: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(LoginStates.name)
 
 
-@login_router.message(LoginStates.name, flags=headers)
+@login_router.message(F.content_type.in_('text'), LoginStates.name, flags=headers)
 async def cmd_login_name(message: Message, state: FSMContext) -> None:
     await state.set_state(LoginStates.name)
     await state.update_data(name=message.text)
@@ -97,7 +98,9 @@ async def cmd_login_name(message: Message, state: FSMContext) -> None:
     await state.set_state(LoginStates.type)
 
 
-@login_router.callback_query(TypeBeginnerCallBackData.filter(), flags=headers)
+@login_router.callback_query(
+    TypeBeginnerCallBackData.filter(),
+    flags=headers)
 async def cmd_login_beginner(query: CallbackQuery, state: FSMContext) -> None:
     await state.update_data(type="Новичок")
     await state.set_state(LoginStates.image)
@@ -136,7 +139,11 @@ async def cmd_login_beginner(query: CallbackQuery, state: FSMContext) -> None:
     )
 
 
-@login_router.message(LoginStates.image, flags=headers)
+@login_router.message(
+    F.content_type.in_("photo"),
+    LoginStates.image,
+    flags=headers
+)
 async def cmd_login_image(message: Message, state: FSMContext) -> None:
     await state.update_data(image=message.photo[0].file_id)
     await state.set_state(LoginStates.height)
@@ -151,23 +158,39 @@ async def cmd_login_image(message: Message, state: FSMContext) -> None:
 
 @login_router.message(LoginStates.height, flags=headers)
 async def cmd_login_height(message: Message, state: FSMContext) -> None:
-    await state.update_data(height=message.text)
-    await state.set_state(LoginStates.weight)
-    await message.answer_sticker(
-        sticker=TYPE_MARKUP
-    )
-    await message.answer(
-        text=render.render_template(template_name="login/weight.html"),
-        reply_markup=back_to_menu
-    )
+    if check_float_value(message.text):
+        await state.update_data(height=message.text)
+        await state.set_state(LoginStates.weight)
+        await message.answer_sticker(
+            sticker=TYPE_MARKUP
+        )
+        await message.answer(
+            text=render.render_template(template_name="login/weight.html"),
+            reply_markup=back_to_menu
+        )
+    else:
+        await message.delete()
+        await message.answer(
+            text=render.render_template(template_name="error/value.html", data={"operation": "рост"}),
+            reply_markup=back_to_menu
+        )
+        await state.set_state(LoginStates.height)
 
 
 @login_router.message(LoginStates.weight, flags=headers)
 async def cmd_login_weight(message: Message, state: FSMContext) -> None:
-    await state.update_data(weight=message.text)
-    data = await state.get_data()
-    print(data)
-    await state.clear()
-    await message.answer(
-        text=render.render_template(template_name="login/success.html")
-    )
+    if check_float_value(message.text):
+        await state.update_data(weight=message.text)
+        data = await state.get_data()
+        print(data)
+        await state.clear()
+        await message.answer(
+            text=render.render_template(template_name="login/success.html")
+        )
+    else:
+        await message.delete()
+        await message.answer(
+            text=render.render_template(template_name="error/value.html", data={"operation": "вес"}),
+            reply_markup=back_to_menu
+        )
+        await state.set_state(LoginStates.weight)

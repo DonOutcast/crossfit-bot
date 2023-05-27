@@ -6,6 +6,10 @@ from model.keyboards.core_buttons import generate_keyboard
 menu_keyboard = generate_keyboard(
     [
         [
+            "Личный кабинет 🔐",
+            "Что по погоде 🌤️"
+        ],
+        [
             "Погода 🌤️",
             "Валюта 💰"
         ],

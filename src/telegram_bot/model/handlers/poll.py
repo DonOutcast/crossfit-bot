@@ -27,27 +27,27 @@ async def cmd_poll(message: Message):
     await message.answer(text=str(message.chat.id))
 
 
-@poll_router.message(
-    F.content_type.in_(
-        {
-            'sticker',
-            'audio',
-            'document',
-            'video',
-            'video_note',
-            'voice',
-            'has_media_spoiler',
-            'contact',
-            'dice',
-            'game',
-            'poll',
-            'venue',
-        }
-    ),
-    flags={"long_operation": "typing"}
-)
-async def back_poll(message: Message):
-    await message.delete()
+# @poll_router.message(
+#     F.content_type.in_(
+#         {
+#             'sticker',
+#             'audio',
+#             'document',
+#             'video',
+#             'video_note',
+#             'voice',
+#             'has_media_spoiler',
+#             'contact',
+#             'dice',
+#             'game',
+#             'poll',
+#             'venue',
+#         }
+#     ),
+#     flags={"long_operation": "typing"}
+# )
+# async def back_poll(message: Message):
+#     await message.delete()
 
 
 @poll_router.message(F.text == "Создать опрос")
