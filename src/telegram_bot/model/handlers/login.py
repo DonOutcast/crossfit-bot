@@ -34,6 +34,14 @@ personal_cabinet_buttons = generate_keyboard(
     ]
 )
 
+back_to_menu = generate_keyboard(
+    [
+        [
+            "Вернуться в главное меню 📜"
+        ]
+    ]
+)
+
 login_router = Router()
 
 headers = {"throttling_key": "default", "long_operation": "typing"}
@@ -63,13 +71,14 @@ async def cmd_login_no(query: CallbackQuery) -> None:
 
 
 @login_router.callback_query(LoginYesCallBackData.filter(), flags=headers)
-async def cmd_login_yse(query: CallbackQuery, state: FSMContext) -> None:
+async def cmd_login_yes(query: CallbackQuery, state: FSMContext) -> None:
     await query.message.delete()
     await query.message.answer_sticker(
         sticker=TYPE_MARKUP
     )
     await query.message.answer(
-        text=render.render_template(template_name="login/name.html")
+        text=render.render_template(template_name="login/name.html"),
+        reply_markup=back_to_menu
     )
     await state.set_state(LoginStates.name)
 
@@ -96,7 +105,8 @@ async def cmd_login_beginner(query: CallbackQuery, state: FSMContext) -> None:
         sticker=PHOTO
     )
     await query.message.answer(
-        text=render.render_template(template_name="login/image.html")
+        text=render.render_template(template_name="login/image.html"),
+        reply_markup=back_to_menu
     )
 
 
@@ -108,7 +118,8 @@ async def cmd_login_beginner(query: CallbackQuery, state: FSMContext) -> None:
         sticker=PHOTO
     )
     await query.message.answer(
-        text=render.render_template(template_name="login/image.html")
+        text=render.render_template(template_name="login/image.html"),
+        reply_markup=back_to_menu
     )
 
 
@@ -120,9 +131,9 @@ async def cmd_login_beginner(query: CallbackQuery, state: FSMContext) -> None:
         sticker=PHOTO
     )
     await query.message.answer(
-        text=render.render_template(template_name="login/image.html")
+        text=render.render_template(template_name="login/image.html"),
+        reply_markup=back_to_menu
     )
-
 
 
 @login_router.message(LoginStates.image, flags=headers)
@@ -133,7 +144,8 @@ async def cmd_login_image(message: Message, state: FSMContext) -> None:
         sticker=TYPE_MARKUP
     )
     await message.answer(
-        text=render.render_template(template_name="login/height.html")
+        text=render.render_template(template_name="login/height.html"),
+        reply_markup=back_to_menu
     )
 
 
@@ -145,7 +157,8 @@ async def cmd_login_height(message: Message, state: FSMContext) -> None:
         sticker=TYPE_MARKUP
     )
     await message.answer(
-        text=render.render_template(template_name="login/weight.html")
+        text=render.render_template(template_name="login/weight.html"),
+        reply_markup=back_to_menu
     )
 
 
