@@ -8,7 +8,7 @@ from model.utils import check_float_value
 from model.template.templates import render
 from model.keyboards.core_buttons import generate_keyboard, get_login_inline_markup
 from model.keyboards import get_type_keyboards
-from model.database import add_user, user_exists
+from model.database.requests import add_user
 from model.call_back_data import (
     TypeBeginnerCallBackData,
     TypeProceedingCallBackData,

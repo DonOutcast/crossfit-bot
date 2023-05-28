@@ -36,7 +36,6 @@
 #         return self.name
 
 from datetime import datetime
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import (
     Integer,
     Float,
@@ -47,6 +46,7 @@ from sqlalchemy import (
     Boolean,
     ForeignKeyConstraint
 )
+from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
 
@@ -65,13 +65,12 @@ class User(Base):
 
 class Target(Base):
     __tablename__ = "target"
+    __table_args__ = (
+        ForeignKeyConstraint(['user_id'], ["user.id"], ondelete="CASCADE"),
+    )
     id = Column(Integer(), primary_key=True, autoincrement=True)
     user_id = Column(Integer())
     name = Column(String(80))
     begin = Column(DateTime(timezone=True), default=datetime.now())
     end = Column(DateTime(timezone=True), default=datetime.now())
     status = Column(Boolean(), default=False)
-    __table_args__ = (
-        ForeignKeyConstraint(['user_id'], ["user.id"], ondelete="CASCADE"),
-    )
-

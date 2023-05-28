@@ -3,6 +3,7 @@ from aiogram import Dispatcher
 from aiogram import exceptions
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiohttp import ClientTimeout
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from tortoise import Tortoise
 
 from configurate.config import settings
@@ -20,10 +21,12 @@ from model.handlers.erro import error_router
 from model.middlewares.config import ConfigMiddleware
 from model.middlewares.chataction import ChatActionMiddleware
 from model.middlewares.aiohttp import AiohttpSessionMiddleware
+from model.middlewares.database import DbSessionMiddleware
 from model.services import broadcaster
 from model.commnad_scope.scopes import SetCommands
 
-from model.database.config import DATABASE_CONFIG
+
+# from model.database.config import DATABASE_CONFIG
 
 
 class Controller(object):
@@ -52,12 +55,12 @@ class Controller(object):
     async def _on_startup(self, admin_ids: list[int]):
         await broadcaster.broadcast(self.bot, admin_ids, "Бот запущен!")
 
-    async def _start_tortoise(self) -> None:
-        await Tortoise.init(config=DATABASE_CONFIG)
-        await Tortoise.generate_schemas()
-
-    async def _stop_tortoise(self) -> None:
-        await Tortoise.close_connections()
+    # async def _start_tortoise(self) -> None:
+    #     await Tortoise.init(config=DATABASE_CONFIG)
+    #     await Tortoise.generate_schemas()
+    #
+    # async def _stop_tortoise(self) -> None:
+    #     await Tortoise.close_connections()
 
     async def main(self):
 
@@ -75,6 +78,14 @@ class Controller(object):
         for router in routers:
             self.dp.include_router(router)
         self._register_global_middlewares(settings)
+
+        engine = create_async_engine(
+            url=f"postgresql+asyncpg://{settings.postgres_user}:{settings.postgres_pass}@{settings.postgres_host}/{settings.postgres_db}",
+            echo=True
+        )
+        session_maker = async_sessionmaker(engine, expire_on_commit=False)
+        self.dp.message.outer_middleware(DbSessionMiddleware(session_maker))
+
         try:
             await self.bot.delete_webhook()
             await self.bot.delete_my_commands()
@@ -84,7 +95,6 @@ class Controller(object):
             await self.dp.start_polling(self.bot, allowed_updates=self.dp.resolve_used_update_types())
 
             # await self._start_tortoise()
-
         except exceptions as ex:
             print(ex)
         finally:
