@@ -52,21 +52,22 @@ Base = declarative_base()
 
 
 class User(Base):
-    __tablename__ = "user"
+    __tablename__ = "User"
     id = Column(Integer(), primary_key=True, autoincrement=True)
     user_name = Column(String(70), unique=True)
     account_id = Column(Integer(), unique=True)
     name = Column(String(70))
-    type = Column(String())
-    image = Column(LargeBinary())
+    type = Column(String(50))
+    image = Column(String(250))
     height = Column(Float(), nullable=True)
     weight = Column(Float(), nullable=True)
-
+# INSERT INTO "User" (user_name, account_id, name, type, image, height, weight)
+# VALUES ('shamil', 112, 'shss', 'про', 'sdfsf', 200, 12);
 
 class Target(Base):
-    __tablename__ = "target"
+    __tablename__ = "Target"
     __table_args__ = (
-        ForeignKeyConstraint(['user_id'], ["user.id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(['user_id'], ["User.id"], ondelete="CASCADE"),
     )
     id = Column(Integer(), primary_key=True, autoincrement=True)
     user_id = Column(Integer())

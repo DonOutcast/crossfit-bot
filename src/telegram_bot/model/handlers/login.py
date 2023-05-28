@@ -8,7 +8,10 @@ from model.utils import check_float_value
 from model.template.templates import render
 from model.keyboards.core_buttons import generate_keyboard, get_login_inline_markup
 from model.keyboards import get_type_keyboards
-from model.database.requests import add_user
+from model.database.requests import (
+    add_user,
+    get_users_list,
+)
 from model.call_back_data import (
     TypeBeginnerCallBackData,
     TypeProceedingCallBackData,
@@ -51,7 +54,9 @@ headers = {"throttling_key": "default", "long_operation": "typing"}
 
 
 @login_router.message(F.text == "Личный кабинет 🔐", flags=headers)
-async def cmd_login(message: Message):
+async def cmd_login(message: Message, session: AsyncSession):
+    data = await get_users_list(session)
+    print(data)
     await message.answer(
         text=render.render_template(template_name="login/login.html")
     )
