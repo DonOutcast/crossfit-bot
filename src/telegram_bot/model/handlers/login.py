@@ -1,6 +1,6 @@
-from aiogram import Router, F
+from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, WebAppInfo, ReplyKeyboardMarkup, MenuButtonWebApp
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from model.fsm.login import LoginStates
@@ -10,7 +10,7 @@ from model.keyboards.core_buttons import generate_keyboard, get_login_inline_mar
 from model.keyboards import get_type_keyboards
 from model.database.requests import (
     add_user,
-    get_users_list,
+    if_user_exists,
 )
 from model.call_back_data import (
     TypeBeginnerCallBackData,
@@ -22,23 +22,11 @@ from model.images.images_ids import (
     LOGIN,
     GOOD_BY,
     TYPE_MARKUP,
-    PHOTO
+    PHOTO,
+    WELCOME_TO_CABINET,
 )
 
-personal_cabinet_buttons = generate_keyboard(
-    [
-        [
-            "Статус 📊",
-            "Цели 🎯",
-        ],
-        [
-            "Тренеровки",
-        ],
-        [
-            "Вернуться в главное меню 📜"
-        ]
-    ]
-)
+from model.handlers.cabinet import personal_cabinet_buttons
 
 back_to_menu = generate_keyboard(
     [
@@ -54,16 +42,29 @@ headers = {"throttling_key": "default", "long_operation": "typing"}
 
 
 @login_router.message(F.text == "Личный кабинет 🔐", flags=headers)
-async def cmd_login(message: Message, session: AsyncSession):
-    data = await get_users_list(session)
-    print(data)
-    await message.answer(
-        text=render.render_template(template_name="login/login.html")
-    )
-    await message.answer_sticker(
-        sticker=LOGIN,
-        reply_markup=get_login_inline_markup()
-    )
+async def cmd_login(message: Message, session: AsyncSession, bot: Bot):
+    if data := await if_user_exists(session, message.from_user.id):
+        await message.answer(
+            text=render.render_template(template_name="login/login.html")
+        )
+        await message.answer_sticker(
+            sticker=LOGIN,
+            reply_markup=get_login_inline_markup()
+        )
+    else:
+        # await bot.set_chat_menu_button(
+        #     menu_button=MenuButtonWebApp(
+        #         type="web_app", text="Открыть веб приложение",
+        #         web_app=WebAppInfo(url="https://github.com/DonOutcast/Donbook.github.io"))
+        # )
+        # await message.answer(
+        #     text=render.render_template(template_name="cabinet/start.html")
+        # )
+        await message.answer_sticker(
+            sticker=WELCOME_TO_CABINET,
+            reply_markup=ReplyKeyboardMarkup().keyboard.append(
+                WebAppInfo(url="https://donoutcast.github.io/Donbook.github.io/", text="site"))
+        )
 
 
 @login_router.callback_query(LoginNoCallBackData.filter(), flags=headers)

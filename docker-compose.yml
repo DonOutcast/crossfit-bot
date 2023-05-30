@@ -1,59 +1,61 @@
 version: "3.8"
 services:
-  elasticsearch:
-    build:
-      context: devops/elastic
-      dockerfile: Dockerfile
-    ports:
-      - "9200:9200"
-    healthcheck:
-      test: ["CMD-SHELL", "curl --silent --fail http://localhost:9200/_cluster/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-  kibana:
-    build:
-      context: devops/kibana
-      dockerfile: Dockerfile
-    ports:
-      - "5601:5601"
-    environment:
-      ELASTICSEARCH_URL: "http://elasticsearch:9200"
-    depends_on:
-      - elasticsearch
-  logstash:
-    build:
-      context: devops/logstash
-      dockerfile: Dockerfile
-    ports:
-      - "9600:9600"
-    depends_on:
-      - elasticsearch
-#  db_psql:
+#  elasticsearch:
 #    build:
-#      context: .
-#      dockerfile: devops/postgres/Dockerfile
-#    env_file:
-#      - ".env"
-#    volumes:
-#      - ./data/db_psql:/var/lib/postgresql/data
+#      context: devops/elastic
+#      dockerfile: Dockerfile
 #    ports:
-#      - "${PSQL_EXTERNAL_PORT}:${PSQL_INTERNAL_PORT}"
-#    container_name: "${PSQL_CONTAINER_NAME}"
-#    image: "${PSQL_IMAGE_NAME}"
+#      - "9200:9200"
 #    healthcheck:
-#      test: ["CMD-SHELL", "pg_isready -U postgres"]
-#      interval: 10s
-#      timeout: 5s
+#      test: ["CMD-SHELL", "curl --silent --fail http://localhost:9200/_cluster/health || exit 1"]
+#      interval: 30s
+#      timeout: 10s
 #      retries: 5
-#      start_period: 10s
-#  tg_bot:
+#  kibana:
 #    build:
-#      context: .
-#      dockerfile: devops/tg_bot/Dockerfile
-#    container_name: ${APP_CONTAINER_NAME}
-#    env_file:
-#      - ".env"
+#      context: devops/kibana
+#      dockerfile: Dockerfile
+#    ports:
+#      - "5601:5601"
+#    environment:
+#      ELASTICSEARCH_URL: "http://elasticsearch:9200"
 #    depends_on:
-#      db_psql:
-#        condition: service_healthy
+#      - elasticsearch
+#  logstash:
+#    build:
+#      context: devops/logstash
+#      dockerfile: Dockerfile
+#    ports:
+#      - "9600:9600"
+#    depends_on:
+#      - elasticsearch
+  db_psql:
+    build:
+      context: .
+      dockerfile: devops/postgres/Dockerfile
+    env_file:
+      - ".env"
+    volumes:
+      - ./data/db_psql:/var/lib/postgresql/data
+    ports:
+      - "${PSQL_EXTERNAL_PORT}:${PSQL_INTERNAL_PORT}"
+    container_name: "${PSQL_CONTAINER_NAME}"
+    image: "${PSQL_IMAGE_NAME}"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+  tg_bot:
+    build:
+      context: .
+      dockerfile: devops/tg_bot/Dockerfile
+    container_name: ${APP_CONTAINER_NAME}
+    env_file:
+      - ".env"
+    volumes:
+      - ./data/migrations:/migrations
+    depends_on:
+      db_psql:
+        condition: service_healthy

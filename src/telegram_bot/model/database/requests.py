@@ -41,7 +41,8 @@ async def get_users_list(session: AsyncSession, ):
 
 
 async def if_user_exists(session: AsyncSession, account_id: int) -> bool:
-    response = await session.execute(User).where(User.account_id == account_id)
+    query = select(User).where(User.account_id == account_id)
+    response = await session.execute(query)
     return response.scalar()
 
 # async def add_user(

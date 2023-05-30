@@ -61,8 +61,7 @@ class User(Base):
     image = Column(String(250))
     height = Column(Float(), nullable=True)
     weight = Column(Float(), nullable=True)
-# INSERT INTO "User" (user_name, account_id, name, type, image, height, weight)
-# VALUES ('shamil', 112, 'shss', 'про', 'sdfsf', 200, 12);
+
 
 class Target(Base):
     __tablename__ = "Target"
