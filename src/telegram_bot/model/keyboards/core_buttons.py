@@ -4,7 +4,7 @@ from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
     KeyboardButton,
-    ReplyKeyboardMarkup
+    ReplyKeyboardMarkup, WebAppInfo
 )
 
 from model.call_back_data.login import LoginNoCallBackData, LoginYesCallBackData
@@ -19,7 +19,7 @@ menu_keyboard = ReplyKeyboardMarkup(
     keyboard=menu_buttons, resize_keyboard=True, )
 
 
-def generate_keyboard(buttons: List[List[str]], resize_keyboard=True, request_location=False) -> ReplyKeyboardMarkup:
+def generate_keyboard(buttons: List[List[str]], resize_keyboard=True, request_location=False, web_app_url=None) -> ReplyKeyboardMarkup:
     """
     Генерирует объект ReplyKeyboardMarkup с заданными кнопками.
 
@@ -38,6 +38,8 @@ def generate_keyboard(buttons: List[List[str]], resize_keyboard=True, request_lo
         for button_text in button_row:
             if request_location and 'location' in button_text.lower():
                 row.append(KeyboardButton(text=button_text.split()[0], request_location=True))
+            elif web_app_url and 'site' in button_text.lower():
+                row.append(KeyboardButton(text=button_text, web_app=WebAppInfo(url=web_app_url)))
             else:
                 row.append(KeyboardButton(text=button_text))
         keyboard.append(row)

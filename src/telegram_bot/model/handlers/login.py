@@ -12,6 +12,11 @@ from model.database.requests import (
     add_user,
     if_user_exists,
 )
+
+from model.keyboards import (
+    back_to_menu,
+    personal_cabinet_keyboard
+)
 from model.call_back_data import (
     TypeBeginnerCallBackData,
     TypeProceedingCallBackData,
@@ -26,16 +31,6 @@ from model.images.images_ids import (
     WELCOME_TO_CABINET,
 )
 
-from model.handlers.cabinet import personal_cabinet_buttons
-
-back_to_menu = generate_keyboard(
-    [
-        [
-            "Вернуться в главное меню 📜"
-        ]
-    ]
-)
-
 login_router = Router()
 
 headers = {"throttling_key": "default", "long_operation": "typing"}
@@ -45,25 +40,19 @@ headers = {"throttling_key": "default", "long_operation": "typing"}
 async def cmd_login(message: Message, session: AsyncSession, bot: Bot):
     if data := await if_user_exists(session, message.from_user.id):
         await message.answer(
+            text=render.render_template(template_name="cabinet/start.html"),
+            reply_markup=personal_cabinet_keyboard
+        )
+        await message.answer_sticker(
+            sticker=WELCOME_TO_CABINET,
+        )
+    else:
+        await message.answer(
             text=render.render_template(template_name="login/login.html")
         )
         await message.answer_sticker(
             sticker=LOGIN,
             reply_markup=get_login_inline_markup()
-        )
-    else:
-        # await bot.set_chat_menu_button(
-        #     menu_button=MenuButtonWebApp(
-        #         type="web_app", text="Открыть веб приложение",
-        #         web_app=WebAppInfo(url="https://github.com/DonOutcast/Donbook.github.io"))
-        # )
-        # await message.answer(
-        #     text=render.render_template(template_name="cabinet/start.html")
-        # )
-        await message.answer_sticker(
-            sticker=WELCOME_TO_CABINET,
-            reply_markup=ReplyKeyboardMarkup().keyboard.append(
-                WebAppInfo(url="https://donoutcast.github.io/Donbook.github.io/", text="site"))
         )
 
 
@@ -202,7 +191,8 @@ async def cmd_login_weight(message: Message, state: FSMContext, session: AsyncSe
             weight=data.get("weight")
         )
         await message.answer(
-            text=render.render_template(template_name="login/success.html")
+            text=render.render_template(template_name="login/success.html"),
+            reply_markup=personal_cabinet_keyboard
         )
     else:
         await message.delete()

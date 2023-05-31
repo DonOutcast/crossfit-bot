@@ -8,15 +8,20 @@ from tortoise import Tortoise
 
 from configurate.config import settings
 
-from model.handlers.user import user_router
-from model.handlers.admin import admin_router
-from model.handlers.login import login_router
-from model.handlers.weather import weather_router
-from model.handlers.back_to_menu import back_to_menu_router
-from model.handlers.currency import currency_router
-from model.handlers.cat import cat_router
-from model.handlers.poll import poll_router
-from model.handlers.erro import error_router
+from model.handlers import (
+    user_router,
+    admin_router,
+    login_router,
+    weather_router,
+    back_to_menu_router,
+    currency_router,
+    cat_router,
+    poll_router,
+    cabinet_router,
+    error_router,
+
+)
+
 
 from model.middlewares.config import ConfigMiddleware
 from model.middlewares.chataction import ChatActionMiddleware
@@ -68,6 +73,7 @@ class Controller(object):
             admin_router,
             user_router,
             login_router,
+            cabinet_router,
             back_to_menu_router,
             weather_router,
             currency_router,

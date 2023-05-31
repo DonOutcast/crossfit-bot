@@ -25,29 +25,18 @@ from model.images.images_ids import (
     PHOTO
 )
 
-personal_cabinet_buttons = generate_keyboard(
-    [
-        [
-            "Статус 📊",
-            "Цели 🎯",
-        ],
-        [
-            "Тренеровки",
-        ],
-        [
-            "Вернуться в главное меню 📜"
-        ]
-    ]
+from model.keyboards import (
+    back_to_menu,
+    personal_cabinet_keyboard
 )
 
-back_to_menu = generate_keyboard(
-    [
-        [
-            "Вернуться в главное меню 📜"
-        ]
-    ]
-)
-
-login_router = Router()
+cabinet_router = Router()
 
 headers = {"throttling_key": "default", "long_operation": "typing"}
+
+
+@cabinet_router.message(F.text == "Цели 🎯", flags=headers)
+async def cmd_tasks(message: Message):
+    await message.answer(
+        text=render.render_template("cabinet/task.html")
+    )
