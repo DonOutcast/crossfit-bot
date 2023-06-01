@@ -21,7 +21,7 @@ from model.handlers import (
     error_router,
 
 )
-
+from model.handlers.test import test_router
 
 from model.middlewares.config import ConfigMiddleware
 from model.middlewares.chataction import ChatActionMiddleware
@@ -79,6 +79,7 @@ class Controller(object):
             currency_router,
             cat_router,
             poll_router,
+            test_router,
             error_router,
         ]
         for router in routers:

@@ -23,7 +23,7 @@ from model.call_back_data import (
     TypeProfessionalBackData
 )
 from model.call_back_data.login import LoginYesCallBackData, LoginNoCallBackData
-from model.images.images_ids import (
+from images import (
     LOGIN,
     GOOD_BY,
     TYPE_MARKUP,
