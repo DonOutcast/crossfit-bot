@@ -12,11 +12,11 @@ personal_cabinet_keyboard = generate_keyboard(
         ],
         [
             "Тренеровки",
-            "Site"
+            "Site",
         ],
         [
-            "Вернуться в главное меню 📜"
-        ]
+            "Вернуться в главное меню 📜",
+        ],
     ],
     resize_keyboard=True,
     web_app_url="https://donoutcast.github.io/Donbook.github.io/"
@@ -25,9 +25,10 @@ personal_cabinet_keyboard = generate_keyboard(
 back_to_menu = generate_keyboard(
     [
         [
-            "Вернуться в главное меню 📜"
-        ]
-    ]
+            "Вернуться в главное меню 📜",
+        ],
+    ],
+    resize_keyboard=True,
 )
 
 menu_keyboard = generate_keyboard(
@@ -49,5 +50,19 @@ menu_keyboard = generate_keyboard(
         ],
 
     ],
+    resize_keyboard=True,
+)
+
+task_keyboard = generate_keyboard(
+    [
+        [
+            "Мои цели 🗃",
+            "Поставить цель 📈",
+        ],
+        [
+            "Вернуться в главное меню 📜",
+        ],
+    ],
+    resize_keyboard=True
 )
 

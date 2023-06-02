@@ -237,7 +237,7 @@ def create_day_buttons(date_now, first_day, count_days):
 
             if year < dt_now.year or (year == dt_now.year and month < dt_now.month) or (
                     year == dt_now.year and month == dt_now.month and day < dt_now.day):
-                line.append(InlineKeyboardButton(text='_', callback_data='_'))
+                line.append(InlineKeyboardButton(text='⏹', callback_data='⏹'))
             else:
                 line.append(
                     InlineKeyboardButton(
@@ -252,23 +252,7 @@ def create_day_buttons(date_now, first_day, count_days):
 
 
 def get_date(date: datetime = datetime.now()) -> InlineKeyboardMarkup:
-    cal_dict = {
-        1: 'Январь',
-        2: 'Февраль',
-        3: 'Март',
-        4: 'Апрель',
-        5: 'Май',
-        6: 'Июнь',
-        7: 'Июль',
-        8: 'Август',
-        9: 'Сентябрь',
-        10: 'Октябрь',
-        11: 'Ноябрь',
-        12: 'Декабрь'
-    }
-
     date_now = TIME_ZONE_STATIC_TZ.localize(date)
-    # date_str = date_now.astimezone(TIME_ZONE_STATIC_TZ).strftime("%Y/%m")
     line_year = create_year_buttons(date_now)
     line_month = create_month_buttons(date_now)
     result_inline_keyboard = [line_month]

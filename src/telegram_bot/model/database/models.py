@@ -70,7 +70,7 @@ class Target(Base):
     )
     id = Column(Integer(), primary_key=True, autoincrement=True)
     user_id = Column(Integer())
-    name = Column(String(80))
+    name = Column(String(100))
     begin = Column(DateTime(timezone=True), default=datetime.now())
     end = Column(DateTime(timezone=True), default=datetime.now())
     status = Column(Boolean(), default=False)
