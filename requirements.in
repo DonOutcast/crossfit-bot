@@ -11,6 +11,7 @@ Jinja2==3.1.2
 Pillow==9.5.0
 pydantic==1.10.7
 python-dotenv==1.0.0
+python-dateutil==2.8.2
 load-dotenv==0.1.0
 lxml==4.9.2
 SQLAlchemy==2.0.15

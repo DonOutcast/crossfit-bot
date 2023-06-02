@@ -45,6 +45,6 @@ HEALTHCHECK --interval=30s --timeout=5s CMD curl -f http://localhost:5000/ || ex
 #           aerich migrate && \
 #           python3 -u src/__main__.py
 
-ENTRYPOINT sleep 100 && cd src/ && alembic revision --autogenerate && \
+ENTRYPOINT cd src/ && alembic revision --autogenerate && \
            alembic  upgrade head && \
            python3 -u __main__.py

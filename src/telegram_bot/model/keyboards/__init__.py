@@ -1,8 +1,10 @@
-from aiogram.types import WebAppInfo
-
-from .inline_keyboards import get_type_keyboards
-from .core_buttons import generate_keyboard
-
+from model.keyboards.inline_keyboards import get_type_keyboards
+from model.keyboards.core_buttons import (
+    generate_keyboard,
+    generate_inline_keyboard,
+    login_choice_keyboard,
+    task_choice_keyboard,
+)
 
 personal_cabinet_keyboard = generate_keyboard(
     [
@@ -46,7 +48,7 @@ menu_keyboard = generate_keyboard(
             "Опрос 📝"
         ],
         [
-          "Тест"
+            "Тест"
         ],
 
     ],
@@ -65,4 +67,3 @@ task_keyboard = generate_keyboard(
     ],
     resize_keyboard=True
 )
-

@@ -89,12 +89,16 @@ pypika-tortoise==0.1.6
     # via tortoise-orm
 pyproject-hooks==1.0.0
     # via build
+python-dateutil==2.8.2
+    # via -r requirements.in
 python-dotenv==1.0.0
     # via
     #   -r requirements.in
     #   load-dotenv
 pytz==2023.3
     # via tortoise-orm
+six==1.16.0
+    # via python-dateutil
 soupsieve==2.4.1
     # via beautifulsoup4
 sqlalchemy==2.0.15

@@ -1,13 +1,13 @@
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery, WebAppInfo, ReplyKeyboardMarkup, MenuButtonWebApp
+from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from model.fsm.login import LoginStates
 from model.utils import check_float_value
 from model.template.templates import render
-from model.keyboards.core_buttons import generate_keyboard, get_login_inline_markup
 from model.keyboards import get_type_keyboards
+
 from model.database.requests import (
     add_user,
     if_user_exists,
@@ -15,14 +15,21 @@ from model.database.requests import (
 
 from model.keyboards import (
     back_to_menu,
-    personal_cabinet_keyboard
+    personal_cabinet_keyboard,
+    login_choice_keyboard,
 )
+
 from model.call_back_data import (
     TypeBeginnerCallBackData,
     TypeProceedingCallBackData,
     TypeProfessionalBackData
 )
-from model.call_back_data.login import LoginYesCallBackData, LoginNoCallBackData
+
+from model.call_back_data import (
+    LoginYesCallBackData,
+    LoginNoCallBackData
+)
+
 from images import (
     LOGIN,
     GOOD_BY,
@@ -52,7 +59,7 @@ async def cmd_login(message: Message, session: AsyncSession, bot: Bot):
         )
         await message.answer_sticker(
             sticker=LOGIN,
-            reply_markup=get_login_inline_markup()
+            reply_markup=login_choice_keyboard
         )
 
 
@@ -81,9 +88,8 @@ async def cmd_login_yes(query: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(LoginStates.name)
 
 
-@login_router.message(F.content_type.in_('text'), LoginStates.name, flags=headers)
+@login_router.message(F.content_type.in_("text"), LoginStates.name, flags=headers)
 async def cmd_login_name(message: Message, state: FSMContext) -> None:
-    await state.set_state(LoginStates.name)
     await state.update_data(name=message.text)
     await message.answer_sticker(
         sticker=TYPE_MARKUP

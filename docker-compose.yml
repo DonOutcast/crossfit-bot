@@ -55,7 +55,9 @@ services:
     env_file:
       - ".env"
     volumes:
-      - ./data/migrations:/src/migrations
+      - alembic_migrations:/code/src/migrations
     depends_on:
       db_psql:
         condition: service_healthy
+volumes:
+  alembic_migrations:
