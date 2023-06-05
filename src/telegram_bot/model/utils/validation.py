@@ -7,4 +7,4 @@ def check_float_value(coordinate: str) -> bool:
 
 
 def check_length_value(max_size: int, user_size: str) -> bool:
-    return max_size <= len(user_size)
+    return len(user_size) <= max_size

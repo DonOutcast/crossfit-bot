@@ -3,35 +3,17 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from calendar import monthrange
 
-from aiogram.filters.callback_data import CallbackData
 from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
 )
 
-
-class DateCallbackData(CallbackData, prefix="date_"):
-    date: str
-    type: str
-
+from model.call_back_data import (
+    DateCallbackData,
+)
 
 TIME_ZONE = "Europe/Moscow"
 TIME_ZONE_STATIC_TZ = pytz.timezone(TIME_ZONE)
-
-if __name__ == "__main__":
-    class A:
-        name = 1
-
-
-    def get_name() -> bool:
-        return True if getattr(A, "name", None) else False
-
-
-    print(get_name())
-    print(datetime.now())
-    print(TIME_ZONE_STATIC_TZ)
-    date_now = TIME_ZONE_STATIC_TZ.localize(datetime.now())
-    print(date_now.astimezone(TIME_ZONE_STATIC_TZ).strftime("%Y/%m"))
 
 
 # def get_date(date: datetime = datetime.now()) -> InlineKeyboardMarkup:
@@ -178,7 +160,9 @@ def create_year_buttons(date_now):
     return [
         InlineKeyboardButton(
             text='⬅️',
-            callback_data=DateCallbackData(type='refresh', date=date_now.strftime("%Y/%m")).pack()
+            callback_data=DateCallbackData(
+                type='refresh',
+                date=(date_now - relativedelta(years=1)).strftime("%Y/%m")).pack(),
         ),
         InlineKeyboardButton(
             text=date_now.strftime("%Y"),
@@ -186,7 +170,9 @@ def create_year_buttons(date_now):
         ),
         InlineKeyboardButton(
             text='➡️',
-            callback_data=DateCallbackData(type='refresh', date=date_now.strftime("%Y/%m")).pack()
+            callback_data=DateCallbackData(
+                type='refresh',
+                date=(date_now + relativedelta(years=1)).strftime("%Y/%m")) .pack()
         )
     ]
 
@@ -206,11 +192,12 @@ def create_month_buttons(date_now):
         11: 'Ноябрь',
         12: 'Декабрь'
     }
-
     return [
         InlineKeyboardButton(
             text='⬅️',
-            callback_data=DateCallbackData(type='refresh', date=date_now.strftime("%Y/%m")).pack()
+            callback_data=DateCallbackData(
+                type='refresh',
+                date=(date_now - relativedelta(months=1)).strftime("%Y/%m")).pack(),
         ),
         InlineKeyboardButton(
             text=cal_dict.get(date_now.month),
@@ -218,7 +205,9 @@ def create_month_buttons(date_now):
         ),
         InlineKeyboardButton(
             text='➡️',
-            callback_data=DateCallbackData(type='refresh', date=date_now.strftime("%Y/%m")).pack()
+            callback_data=DateCallbackData(
+                type='refresh',
+                date=(date_now + relativedelta(months=1)).strftime("%Y/%m")).pack()
         )
     ]
 

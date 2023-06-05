@@ -80,7 +80,7 @@ class Controller(object):
             cat_router,
             poll_router,
             test_router,
-            error_router,
+            # error_router,
         ]
         for router in routers:
             self.dp.include_router(router)

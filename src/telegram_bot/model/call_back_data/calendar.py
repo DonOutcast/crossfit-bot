@@ -1,3 +1,6 @@
 from aiogram.filters.callback_data import CallbackData
 
-CallbackData()
+
+class DateCallbackData(CallbackData, prefix="date_"):
+    date: str
+    type: str

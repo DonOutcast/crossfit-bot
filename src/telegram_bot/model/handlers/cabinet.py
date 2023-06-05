@@ -1,4 +1,7 @@
+from datetime import datetime
+
 from aiogram import Router, F
+from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -28,11 +31,12 @@ from model.keyboards import (
 
 from model.call_back_data import (
     TaskNoCallBackData,
-    TaskYesCallBackData
+    TaskYesCallBackData,
+    DateCallbackData,
 )
 
 from model.utils import (
-    check_length_value
+    check_length_value,
 )
 
 cabinet_router = Router()
@@ -81,15 +85,16 @@ async def cmd_yes(query: CallbackQuery, state: FSMContext) -> None:
     await state.set_state(TaskStates.name)
 
 
-@cabinet_router.message(F.contetn_type.in_("text"), TaskStates.name, flags=headers)
+@cabinet_router.message(F.content_type.in_("text"), TaskStates.name, flags=headers)
 async def cmd_task_name(message: Message, state: FSMContext) -> None:
     if check_length_value(max_size=80, user_size=message.text):
         await state.update_data(name=message.text)
-        await message.answer_sticker(
-            sticker=TYPE_MARKUP
+        await message.answer(
+            text=render.render_template(template_name="cabinet/date_start.html")
         )
         await message.answer(
-            text=render.render_template(template_name="cabinet/name.html")
+            text="Crossfit\n    Kzn",
+            reply_markup=get_date()
         )
         await state.set_state(TaskStates.begin)
     else:
@@ -103,6 +108,14 @@ async def cmd_task_name(message: Message, state: FSMContext) -> None:
 @cabinet_router.message(F.content_type.in_("callback_data"), TaskStates.begin)
 async def cmd_task_begin_date(message: Message, state: FSMContext) -> None:
     await message.answer(
-        text="Тестируем",
+        text="Crossfit\n    Kzn",
         reply_markup=get_date()
+    )
+
+
+@cabinet_router.callback_query(DateCallbackData.filter(F.type == "refresh"))
+async def refresh_date(query: CallbackQuery, callback_data: CallbackData) -> None:
+    await query.message.edit_reply_markup(
+        inline_message_id=query.inline_message_id,
+        reply_markup=get_date(datetime.strptime(callback_data.dict().get("date"), "%Y/%m")),
     )
