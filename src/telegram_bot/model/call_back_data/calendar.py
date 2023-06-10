@@ -8,6 +8,4 @@ class DateCallbackData(CallbackData, prefix="date_"):
 
 class TimeCallbackDate(CallbackData, prefix="time"):
     type: str
-    date: str
-    first_time: str
-    last_time: str
+    time: str

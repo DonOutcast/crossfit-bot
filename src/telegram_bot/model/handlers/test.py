@@ -13,7 +13,11 @@ from model.keyboards import (
     back_to_menu,
     personal_cabinet_keyboard
 )
-from model.keyboards.calendar import get_date, get_time
+from model.keyboards.calendar import (
+    get_date,
+    get_time,
+    AioCalendar,
+)
 from datetime import datetime
 
 test_router = Router()
@@ -23,9 +27,13 @@ headers = {"throttling_key": "default", "long_operation": "typing"}
 
 @test_router.message(F.text == "Тест", flags=headers)
 async def cmd_tasks(message: Message):
+    cal = AioCalendar()
+    cal.label_preview_month = "⬅️"
+    cal.label_next_month = "➡️"
     await message.answer(
         text="🗓 Выберите интересующую вас дату:",
-        reply_markup=get_date(),
+        # reply_markup=get_date(),
+        reply_markup=cal.get_calendar()
     )
 
 
@@ -39,8 +47,10 @@ async def refresh_date(query: CallbackQuery, callback_data: CallbackData) -> Non
 
 @test_router.callback_query(DateCallbackData.filter(F.type == "get_date"))
 async def save_date_get_time(query: CallbackQuery, callback_data: CallbackData) -> None:
+    # await query.answer(text="Вы выбрали дату", show_alert=True)
     await query.message.answer(text="Выберите дату")
     await query.message.edit_reply_markup(
         inline_message_id=query.inline_message_id,
-        reply_markup=get_time(date=callback_data.dict().get("date"))
+        reply_markup=get_time(callback_data.dict().get("date"))
     )
+
