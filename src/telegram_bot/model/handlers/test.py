@@ -17,6 +17,7 @@ from model.keyboards.calendar import (
     get_date,
     get_time,
     AioCalendar,
+    AioCalendarCallbackData,
 )
 from datetime import datetime
 
@@ -27,7 +28,8 @@ headers = {"throttling_key": "default", "long_operation": "typing"}
 
 @test_router.message(F.text == "Тест", flags=headers)
 async def cmd_tasks(message: Message):
-    cal = AioCalendar()
+    cal = AioCalendar(datetime.now().year, datetime.now().month)
+    cal.all_days = True
     cal.label_preview_month = "⬅️"
     cal.label_next_month = "➡️"
     await message.answer(
@@ -36,6 +38,16 @@ async def cmd_tasks(message: Message):
         reply_markup=cal.get_calendar()
     )
 
+
+@test_router.callback_query(AioCalendarCallbackData.filter())
+async def catch_calendar(query: CallbackQuery, callback_data: CallbackData) -> None:
+    AioCalendar.label_next_month = "➡️"
+    AioCalendar.label_preview_month = "⬅️"
+    AioCalendar.all_days = True
+    result = await AioCalendar(
+        callback_data.dict().get("year"),
+        callback_data.dict().get("month")
+                            ).process_selection(query, callback_data)
 
 @test_router.callback_query(DateCallbackData.filter(F.type == "refresh"))
 async def refresh_date(query: CallbackQuery, callback_data: CallbackData) -> None:
@@ -53,4 +65,3 @@ async def save_date_get_time(query: CallbackQuery, callback_data: CallbackData) 
         inline_message_id=query.inline_message_id,
         reply_markup=get_time(callback_data.dict().get("date"))
     )
-

@@ -1,8 +1,9 @@
+from enum import Enum
 from typing import List, Optional
 
 import pytz
 import calendar
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from aiogram.filters.callback_data import CallbackData
 from aiogram.utils.keyboard import InlineKeyboardBuilder
@@ -11,7 +12,7 @@ from calendar import monthrange
 
 from aiogram.types import (
     InlineKeyboardMarkup,
-    InlineKeyboardButton,
+    InlineKeyboardButton, CallbackQuery,
 )
 
 from model.call_back_data import (
@@ -74,9 +75,18 @@ HOURS = {
 }
 
 
+class CalendarAction(str, Enum):
+    next_month = "NEXT_MONTH"
+    preview_month = "PREVIEW_MONTH"
+    next_year = "NEXT_YEAR"
+    preview_year = "PREVIEW_YER"
+    ignore = "IGNORE"
+    day = "DAY"
+
+
 class AioCalendarCallbackData(CallbackData, prefix="simple_calendar"):
     # status: str
-    act: Optional[str]
+    action: CalendarAction
     year: Optional[int]
     month: Optional[int]
     day: Optional[int]
@@ -88,10 +98,12 @@ class AioCalendar:
     def __init__(
             self,
             # object_id: int,
-            year: int = datetime.now().year,
-            month: int = datetime.now().month,
+            year: int,
+            month: int,
+            all_days: bool = False
     ):
         # self.object_id = object_id
+        self._all_days = all_days
         self.builder = InlineKeyboardBuilder()
         self.year = year
         self.month = month
@@ -108,6 +120,15 @@ class AioCalendar:
             "Сб",
             "Вс",
         ]
+
+    @property
+    def all_days(self) -> bool:
+        return self._all_days
+
+    @all_days.setter
+    def all_days(self, new_value: bool):
+        self._all_days = new_value
+
 
     @property
     def short_names_of_days(self) -> list[str]:
@@ -149,7 +170,9 @@ class AioCalendar:
     def label_preview_year(self, new_label: str) -> None:
         self._label_preview_year = new_label
 
-    def get_calendar(self) -> InlineKeyboardMarkup:
+    def get_calendar(
+            self,
+    ) -> InlineKeyboardMarkup:
         self.builder.row(
             self._get_preview_month(1),
             self._get_label_month_and_year(),
@@ -160,7 +183,16 @@ class AioCalendar:
             *self._get_short_names_days(),
             width=7
         )
-        self._get_days_of_month()
+        if self.all_days:
+            self._get_days_of_month()
+        else:
+            self._create_day_with_current_date(
+                datetime(
+                    year=self.year,
+                    month=self.month,
+                    day=1
+                )
+            )
         self.builder.row(
             self._get_preview_year(0),
             self._get_label_year(),
@@ -171,7 +203,7 @@ class AioCalendar:
 
     def _get_ignore_callback(self) -> str:
         return AioCalendarCallbackData(
-            act="IGNORE",
+            action=CalendarAction.ignore,
             year=self.year,
             month=self.month,
             day=0,
@@ -182,7 +214,7 @@ class AioCalendar:
         return InlineKeyboardButton(
             text=self.label_next_month,
             callback_data=AioCalendarCallbackData(
-                act="NEXT-MONTH",
+                action=CalendarAction.next_month,
                 year=self.year,
                 month=self.month,
                 day=day,
@@ -194,7 +226,7 @@ class AioCalendar:
         return InlineKeyboardButton(
             text=self.label_preview_month,
             callback_data=AioCalendarCallbackData(
-                act="PREV-MONTH",
+                action=CalendarAction.preview_month,
                 year=self.year,
                 month=self.month,
                 day=day,
@@ -206,7 +238,7 @@ class AioCalendar:
         return InlineKeyboardButton(
             text=self.label_preview_year,
             callback_data=AioCalendarCallbackData(
-                act="PREV-YEAR",
+                action=CalendarAction.preview_year,
                 year=self.year,
                 month=self.month,
                 day=day,
@@ -218,7 +250,7 @@ class AioCalendar:
         return InlineKeyboardButton(
             text=self.label_next_year,
             callback_data=AioCalendarCallbackData(
-                act="PREV-YEAR",
+                action=CalendarAction.next_year,
                 year=self.year,
                 month=self.month,
                 day=day,
@@ -261,16 +293,89 @@ class AioCalendar:
                 b = InlineKeyboardButton(
                     text=str(day),
                     callback_data=AioCalendarCallbackData(
-                        act="DAY",
+                        action=CalendarAction.day,
                         year=self.year,
                         month=self.month,
                         day=day,
                     ).pack()
                 )
                 temp.append(b)
-            self.builder.row(
-                *temp,
-                width=7)
+            if len(temp) == 7:
+                self.builder.row(
+                    *temp,
+                    width=7)
+
+    def _create_day_with_current_date(self, date: datetime = datetime.now()):
+        date_now = TIME_ZONE_STATIC_TZ.localize(date)
+        first_day = date_now.weekday()
+        count_days = monthrange(date_now.year, date_now.month)[1]
+        line = []
+        dt_now = datetime.now()
+
+        for number_of_day in range(5 * 7):
+            if number_of_day < first_day or number_of_day > count_days + first_day - 1:
+                line.append(
+                    InlineKeyboardButton(
+                        text=" ",
+                        callback_data=self._get_ignore_callback()
+                    )
+                )
+            else:
+                day = number_of_day - first_day + 1
+                month = date_now.month
+                year = date_now.year
+
+                if year < dt_now.year or (year == dt_now.year and month < dt_now.month) or (
+                        year == dt_now.year and month == dt_now.month and day < dt_now.day):
+                    line.append(
+                        InlineKeyboardButton(
+                            text=" ",
+                            callback_data=self._get_ignore_callback()
+                        )
+                    )
+                else:
+                    line.append(
+                        InlineKeyboardButton(
+                            text=str(day),
+                            callback_data=AioCalendarCallbackData(
+                                action=CalendarAction.day,
+                                year=self.year,
+                                month=self.month,
+                                day=day,
+                            ).pack()
+                        )
+                    )
+            if len(line) == 7:
+                self.builder.row(*line, width=7)
+                line = []
+
+    async def process_selection(self, query: CallbackQuery, data: CallbackData) -> tuple[bool, Optional[datetime]]:
+        result_data = (False, None)
+        data = data.dict()
+        if data.get("action") == CalendarAction.ignore:
+            await query.answer(cache_time=30)
+        elif data.get("action") == CalendarAction.next_month:
+            temp_date = datetime(self.year, data.get("month"), 1)
+            next_month = temp_date + timedelta(31)
+            self.month = next_month.month
+            await query.message.edit_reply_markup(reply_markup=self.get_calendar())
+        elif data.get("action") == CalendarAction.preview_month:
+            temp_date = datetime(self.year, data.get("month"), 1)
+            preview_month = temp_date - timedelta(1)
+            self.month = preview_month.month
+            await query.message.edit_reply_markup(reply_markup=self.get_calendar())
+        elif data.get("action") == CalendarAction.next_year:
+            next_year = datetime(data.get("year") + 1, data.get("month"), 1)
+            self.year = next_year.year
+            await query.message.edit_reply_markup(reply_markup=self.get_calendar())
+        elif data.get("action") == CalendarAction.preview_year:
+            preview_year = datetime(data.get("year") - 1, data.get("month"), 1)
+            self.year = preview_year.year
+            await query.message.edit_reply_markup(reply_markup=self.get_calendar())
+        else:
+            await query.message.delete_reply_markup()
+            result_data = True, datetime(int(data.get("year")), int(data.get("month")), int(data.get("day")))
+        return result_data
 
 
 def create_year_buttons(date_now):
