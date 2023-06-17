@@ -48,11 +48,13 @@ menu_keyboard = generate_keyboard(
             "Опрос 📝"
         ],
         [
-            "Тест"
+            "Тест",
+            "SItE",
         ],
 
     ],
     resize_keyboard=True,
+    web_app_url="https://crossfit-frontend.vercel.app/",
 )
 
 task_keyboard = generate_keyboard(

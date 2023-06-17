@@ -20,18 +20,27 @@ from model.keyboards.calendar import (
     AioCalendarCallbackData,
 )
 from datetime import datetime
+import logging.config
 
 test_router = Router()
 
 headers = {"throttling_key": "default", "long_operation": "typing"}
 
+config = {
+    'label_next_month': "➡️",
+    'label_preview_month': "⬅️",
+    'label_next_year': "➡️",
+    'label_preview_year': "⬅️",
+    # "emoji_after_day": "🗓",
+}
+
+AioCalendar.configure(config)
+
 
 @test_router.message(F.text == "Тест", flags=headers)
 async def cmd_tasks(message: Message):
     cal = AioCalendar(datetime.now().year, datetime.now().month)
-    cal.all_days = True
-    cal.label_preview_month = "⬅️"
-    cal.label_next_month = "➡️"
+    # cal.all_days = True
     await message.answer(
         text="🗓 Выберите интересующую вас дату:",
         # reply_markup=get_date(),
@@ -39,15 +48,45 @@ async def cmd_tasks(message: Message):
     )
 
 
-@test_router.callback_query(AioCalendarCallbackData.filter())
+@test_router.callback_query(
+    AioCalendarCallbackData.filter(
+        F.action.in_(
+            {
+                "IGNORE",
+                "NEXT_MONTH",
+                "PREVIEW_MONTH",
+                "NEXT_YEAR",
+                "PREVIEW_YEAR",
+                "IGNORE",
+            }
+        )
+    )
+)
 async def catch_calendar(query: CallbackQuery, callback_data: CallbackData) -> None:
-    AioCalendar.label_next_month = "➡️"
-    AioCalendar.label_preview_month = "⬅️"
-    AioCalendar.all_days = True
+    # AioCalendar.all_days = True
+    await AioCalendar(
+        callback_data.dict().get("year"),
+        callback_data.dict().get("month")
+    ).process_selection(query, callback_data)
+
+
+@test_router.callback_query(
+    AioCalendarCallbackData.filter(
+        F.action.in_(
+            {
+                "DAY",
+                "TODAY",
+            }
+        )
+    )
+)
+async def get_test_simple_time(query: CallbackQuery, callback_data: CallbackData) -> None:
     result = await AioCalendar(
         callback_data.dict().get("year"),
         callback_data.dict().get("month")
-                            ).process_selection(query, callback_data)
+    ).process_selection(query, callback_data)
+    await query.message.answer(text="Ты поймал день")
+
 
 @test_router.callback_query(DateCallbackData.filter(F.type == "refresh"))
 async def refresh_date(query: CallbackQuery, callback_data: CallbackData) -> None:
