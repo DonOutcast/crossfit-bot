@@ -11,7 +11,8 @@ from model.utils import check_float_value
 
 from model.keyboards import (
     back_to_menu,
-    personal_cabinet_keyboard
+    personal_cabinet_keyboard,
+    AioTime,
 )
 from model.keyboards.calendar import (
     get_date,
@@ -85,7 +86,8 @@ async def get_test_simple_time(query: CallbackQuery, callback_data: CallbackData
         callback_data.dict().get("year"),
         callback_data.dict().get("month")
     ).process_selection(query, callback_data)
-    await query.message.answer(text="Ты поймал день")
+    await query.message.delete()
+    await query.message.answer(text="Выберите время ", reply_markup=AioTime().get_time())
 
 
 @test_router.callback_query(DateCallbackData.filter(F.type == "refresh"))
@@ -96,11 +98,11 @@ async def refresh_date(query: CallbackQuery, callback_data: CallbackData) -> Non
     )
 
 
-@test_router.callback_query(DateCallbackData.filter(F.type == "get_date"))
-async def save_date_get_time(query: CallbackQuery, callback_data: CallbackData) -> None:
-    # await query.answer(text="Вы выбрали дату", show_alert=True)
-    await query.message.answer(text="Выберите дату")
-    await query.message.edit_reply_markup(
-        inline_message_id=query.inline_message_id,
-        reply_markup=get_time(callback_data.dict().get("date"))
-    )
+# @test_router.callback_query(DateCallbackData.filter(F.type == "get_date"))
+# async def save_date_get_time(query: CallbackQuery, callback_data: CallbackData) -> None:
+#     # await query.answer(text="Вы выбрали дату", show_alert=True)
+#     await query.message.answer(text="Выберите дату")
+#     await query.message.edit_reply_markup(
+#         inline_message_id=query.inline_message_id,
+#         reply_markup=get_time(callback_data.dict().get("date"))
+#     )

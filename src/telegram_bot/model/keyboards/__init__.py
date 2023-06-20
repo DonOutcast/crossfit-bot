@@ -5,6 +5,7 @@ from model.keyboards.core_buttons import (
     login_choice_keyboard,
     task_choice_keyboard,
 )
+from model.keyboards.time import AioTime
 
 personal_cabinet_keyboard = generate_keyboard(
     [
