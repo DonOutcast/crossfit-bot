@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, WebAppInfo, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from model.call_back_data import DateCallbackData
+from model.call_back_data import DateCallbackData, AioTimeCallbackData
 from model.fsm import TaskStates
 from model.fsm.login import LoginStates
 from model.utils import check_float_value
@@ -21,7 +21,6 @@ from model.keyboards.calendar import (
     AioCalendarCallbackData,
 )
 from datetime import datetime
-import logging.config
 
 test_router = Router()
 
@@ -97,6 +96,18 @@ async def refresh_date(query: CallbackQuery, callback_data: CallbackData) -> Non
         reply_markup=get_date(datetime.strptime(callback_data.dict().get("date"), "%Y/%m")),
     )
 
+
+@test_router.callback_query(
+    AioTimeCallbackData.filter(
+        F.action.in_(
+            {
+                "IGNORE",
+            }
+        )
+    )
+)
+async def refresh_time(query: CallbackQuery, callback_data: CallbackData) -> None:
+    await AioTime().process_selection(query, callback_data)
 
 # @test_router.callback_query(DateCallbackData.filter(F.type == "get_date"))
 # async def save_date_get_time(query: CallbackQuery, callback_data: CallbackData) -> None:

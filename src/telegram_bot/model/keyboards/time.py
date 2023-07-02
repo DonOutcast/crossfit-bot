@@ -24,10 +24,6 @@ TIME_ZONE_STATIC_TZ = pytz.timezone(TIME_ZONE)
 
 
 class TimeAction(str, Enum):
-    next_month = "NEXT_MONTH"
-    preview_month = "PREVIEW_MONTH"
-    next_year = "NEXT_YEAR"
-    preview_year = "PREVIEW_YEAR"
     ignore = "IGNORE"
     time = "TIME"
     now = "NOW"
@@ -93,15 +89,20 @@ class AioTime:
     def __init__(self):
         pass
 
+    @property
     def _get_ignore_callback(self) -> str:
         return AioTimeCallbackData(
             action=TimeAction.ignore,
         ).pack()
 
+    @property
+    def _get_time_callback(self) -> str:
+        return AioTimeCallbackData(
+            action=TimeAction.ignore
+        ).pack()
+
     def get_time(self, book_date=None) -> InlineKeyboardMarkup:
-        return self.build_keyboard_time()
-
-
+        return self.build_keyboard_time("")
 
     def build_keyboard_time(self, label: str):
         import datetime
@@ -120,24 +121,30 @@ class AioTime:
         finished = datetime.timedelta(days=0)
         step_count = 24
 
-        buttons = []
         for i in range(step_count):
+
             after_split = ':'.join(str(finished).split(':')[:2])
+            after_split += self.hours.get(after_split, "")
+            if finished < datetime.datetime.now().timetuple():
+                button = InlineKeyboardButton(
+                    text=after_split,
+                    callback_data=self._get_ignore_callback,
+                )
+            else:
+                button = InlineKeyboardButton(
+                    text=after_split,
+                    callback_data=self._get_time_callback,
+
+                )
 
             # if book_date:
             #     call_back_data = f"super_{after_split}_{str(book_date).split(' ')[0]}"
             # else:
             #     call_back_data = f"revers_{after_split}"
-            after_split += self.hours.get(after_split, "")
-            button = InlineKeyboardButton(
-                text=after_split,
-                callback_data=self._get_ignore_callback()
-            )
+
             finished += datetime.timedelta(hours=1)
-            buttons.append(button)
             time_menu.button(
-                text=after_split,
-                callback_data=AioTimeCallbackData(action=TimeAction.time).pack()
+                button
             )
         # current_count = 4 - len(list(time_menu.buttons)) % 4
         # for _ in range(current_count):
@@ -151,9 +158,8 @@ class AioTime:
         result_data = (False, None)
         data = data.dict()
         action = data.get("action")
-        if action:
-
-            pass
+        if action == TimeAction.ignore:
+            await query.answer(text="Время прошло!", cache_time=30)
 
         return result_data
 
