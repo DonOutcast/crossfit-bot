@@ -44,7 +44,7 @@ headers = {"throttling_key": "default", "long_operation": "typing"}
 
 
 @login_router.message(F.text == "Личный кабинет 🔐", flags=headers)
-async def cmd_login(message: Message, session: AsyncSession, bot: Bot):
+async def cmd_login(message: Message, session: AsyncSession):
     if data := await if_user_exists(session, message.from_user.id):
         await message.answer(
             text=render.render_template(template_name="cabinet/start.html"),

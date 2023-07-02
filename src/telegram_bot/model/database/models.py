@@ -41,6 +41,7 @@ from sqlalchemy import (
     Float,
     String,
     Column,
+    Date,
     LargeBinary,
     DateTime,
     Boolean,
@@ -74,3 +75,13 @@ class Target(Base):
     begin = Column(DateTime(timezone=True), default=datetime.now())
     end = Column(DateTime(timezone=True), default=datetime.now())
     status = Column(Boolean(), default=False)
+
+
+class Calendar(Base):
+    __tablename__ = "calendar"
+    __table_args__ = (
+        ForeignKeyConstraint(["user_id"], ["User.id"], ondelete="CASCADE"),
+    )
+    id = Column(Integer(), primary_key=True, autoincrement=True)
+    user_id = Column(Integer())
+    choice_date = Date()

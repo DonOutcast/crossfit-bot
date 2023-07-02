@@ -1,11 +1,11 @@
 from aiohttp import ClientSession, ClientTimeout
 from aiogram import BaseMiddleware
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import CallbackQuery
 
 from typing import Callable, Dict, Any, Awaitable, Union
 
 
-class AiohttpSessionMiddleware(BaseMiddleware):
+class AiohttpSessionCallbackMiddleware(BaseMiddleware):
 
     def __init__(self, aiohttp_timeout: ClientTimeout):
         super().__init__()
@@ -13,8 +13,8 @@ class AiohttpSessionMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[Union[Message, CallbackQuery], Dict[str, Any]], Awaitable[Any]],
-            event: Union[Message, CallbackQuery],
+            handler: Callable[[CallbackQuery, Dict[str, Any]], Awaitable[Any]],
+            event: CallbackQuery,
             data: Dict[str, Any],
     ) -> Any:
         async with ClientSession(timeout=self.aiohttp_session_timeout) as aiohttp_session:

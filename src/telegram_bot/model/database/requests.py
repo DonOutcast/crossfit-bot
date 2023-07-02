@@ -5,7 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .models import (
     User,
-    Target
+    Target,
+    Calendar
 )
 
 
@@ -42,6 +43,12 @@ async def get_users_list(session: AsyncSession, ):
 
 async def if_user_exists(session: AsyncSession, account_id: int) -> bool:
     query = select(User).where(User.account_id == account_id)
+    response = await session.execute(query)
+    return response.scalar()
+
+
+async def get_calendar_date_by_user(session: AsyncSession, user_id):
+    query = select(Calendar).where(Calendar.user_id == user_id)
     response = await session.execute(query)
     return response.scalar()
 

@@ -119,3 +119,7 @@ async def refresh_date(query: CallbackQuery, callback_data: CallbackData) -> Non
         inline_message_id=query.inline_message_id,
         reply_markup=get_date(datetime.strptime(callback_data.dict().get("date"), "%Y/%m")),
     )
+
+
+# @cabinet_router.callback_query(DateCallbackData.filter(F.type == "get_date"))
+# async def

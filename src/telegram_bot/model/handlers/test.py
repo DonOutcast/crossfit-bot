@@ -8,6 +8,7 @@ from model.call_back_data import DateCallbackData, AioTimeCallbackData
 from model.fsm import TaskStates
 from model.fsm.login import LoginStates
 from model.utils import check_float_value
+from model.database.requests import get_calendar_date_by_user
 
 from model.keyboards import (
     back_to_menu,
@@ -80,7 +81,9 @@ async def catch_calendar(query: CallbackQuery, callback_data: CallbackData) -> N
         )
     )
 )
-async def get_test_simple_time(query: CallbackQuery, callback_data: CallbackData) -> None:
+async def get_test_simple_time(query: CallbackQuery, callback_data: CallbackData, session: AsyncSession) -> None:
+    user_date = await get_calendar_date_by_user(session=session,  user_id=1)
+    print(user_date)
     result = await AioCalendar(
         callback_data.dict().get("year"),
         callback_data.dict().get("month")

@@ -54,6 +54,12 @@ class Controller(object):
     def _register_global_middlewares(self, config: settings):
         aiohttp_session_timeout = ClientTimeout(total=1, connect=5)
         self.dp.update.middleware(AiohttpSessionMiddleware(aiohttp_session_timeout))
+
+        self.dp.callback_query.middleware(AiohttpSessionMiddleware(aiohttp_session_timeout))
+        self.dp.callback_query.outer_middleware(AiohttpSessionMiddleware(aiohttp_session_timeout))
+        # self.dp.callback_query.outer_middleware(AiohttpSessionMiddleware(aiohttp_session_timeout))
+        # self.dp.callback_query.middleware(AiohttpSessionCallbackMiddleware(aiohttp_session_timeout))
+
         self.dp.message.middleware(ChatActionMiddleware())
         self.dp.message.outer_middleware(ConfigMiddleware(config))
 

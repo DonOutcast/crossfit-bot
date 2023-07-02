@@ -98,7 +98,7 @@ class AioTime:
     @property
     def _get_time_callback(self) -> str:
         return AioTimeCallbackData(
-            action=TimeAction.ignore
+            action=TimeAction.time
         ).pack()
 
     def get_time(self, book_date=None) -> InlineKeyboardMarkup:
@@ -125,7 +125,7 @@ class AioTime:
 
             after_split = ':'.join(str(finished).split(':')[:2])
             after_split += self.hours.get(after_split, "")
-            if finished < datetime.datetime.now().timetuple():
+            if datetime.datetime.now() + finished < datetime.datetime.now():
                 button = InlineKeyboardButton(
                     text=after_split,
                     callback_data=self._get_ignore_callback,
@@ -143,9 +143,10 @@ class AioTime:
             #     call_back_data = f"revers_{after_split}"
 
             finished += datetime.timedelta(hours=1)
-            time_menu.button(
-                button
-            )
+            # time_menu.button(
+            #     button
+            # )
+            time_menu.add(button)
         # current_count = 4 - len(list(time_menu.buttons)) % 4
         # for _ in range(current_count):
         #     time_menu.button(text=" ", callback_data="⏹")
