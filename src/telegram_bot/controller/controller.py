@@ -4,7 +4,7 @@ from aiogram import exceptions
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiohttp import ClientTimeout
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from tortoise import Tortoise
+
 
 from configurate.config import settings
 
@@ -53,10 +53,11 @@ class Controller(object):
 
     def _register_global_middlewares(self, config: settings):
         aiohttp_session_timeout = ClientTimeout(total=1, connect=5)
-        self.dp.update.middleware(AiohttpSessionMiddleware(aiohttp_session_timeout))
+        # self.dp.update.middleware(AiohttpSessionMiddleware(aiohttp_session_timeout))
 
+        self.dp.message.middleware(AiohttpSessionMiddleware(aiohttp_session_timeout))
         self.dp.callback_query.middleware(AiohttpSessionMiddleware(aiohttp_session_timeout))
-        self.dp.callback_query.outer_middleware(AiohttpSessionMiddleware(aiohttp_session_timeout))
+
         # self.dp.callback_query.outer_middleware(AiohttpSessionMiddleware(aiohttp_session_timeout))
         # self.dp.callback_query.middleware(AiohttpSessionCallbackMiddleware(aiohttp_session_timeout))
 
@@ -97,7 +98,9 @@ class Controller(object):
             echo=True
         )
         session_maker = async_sessionmaker(engine, expire_on_commit=False)
+
         self.dp.message.outer_middleware(DbSessionMiddleware(session_maker))
+        self.dp.callback_query.middleware(DbSessionMiddleware(session_maker))
 
         try:
             await self.bot.delete_webhook()

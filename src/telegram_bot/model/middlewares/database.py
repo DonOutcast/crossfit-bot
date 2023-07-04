@@ -1,7 +1,7 @@
 from aiogram import BaseMiddleware
-from aiogram.types import TelegramObject
+from aiogram.types import CallbackQuery, Message
 
-from typing import Callable, Awaitable, Dict, Any
+from typing import Callable, Awaitable, Dict, Any, Union
 from sqlalchemy.ext.asyncio import async_sessionmaker, AsyncSession
 
 
@@ -12,8 +12,8 @@ class DbSessionMiddleware(BaseMiddleware):
 
     async def __call__(
             self,
-            handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
-            event: TelegramObject,
+            handler: Callable[[Union[Message, CallbackQuery], Dict[str, Any]], Awaitable[Any]],
+            event: Union[Message, CallbackQuery],
             data: Dict[str, Any],
     ) -> Any:
         session: AsyncSession
