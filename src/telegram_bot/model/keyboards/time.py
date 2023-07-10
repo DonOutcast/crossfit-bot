@@ -95,14 +95,14 @@ class AioTime:
             action=TimeAction.ignore,
         ).pack()
 
-    @property
-    def _get_time_callback(self) -> str:
+    def _get_time_callback(self, time) -> str:
         return AioTimeCallbackData(
-            action=TimeAction.time
+            action=TimeAction.time,
+            time=time.split(":")[0]
         ).pack()
 
-    def get_time(self, book_date=None) -> InlineKeyboardMarkup:
-        return self.build_keyboard_time("")
+    def get_time(self, user_id=None, time=None, label_table=None) -> InlineKeyboardMarkup:
+        return self.build_keyboard_time(label_table)
 
     def build_keyboard_time(self, label: str):
         import datetime
@@ -124,17 +124,19 @@ class AioTime:
         for i in range(step_count):
 
             after_split = ':'.join(str(finished).split(':')[:2])
-            after_split += self.hours.get(after_split, "")
+            if label is not None and after_split == label.split()[0]:
+                after_split = label
             if datetime.datetime.now() + finished < datetime.datetime.now():
+                after_split += self.hours.get(after_split, "")
                 button = InlineKeyboardButton(
                     text=after_split,
                     callback_data=self._get_ignore_callback,
                 )
             else:
                 button = InlineKeyboardButton(
-                    text=after_split,
-                    callback_data=self._get_time_callback,
-
+                    text=after_split + self.hours.get(after_split, ""),
+                    callback_data=self._get_time_callback(after_split),
+                    # callback_data="selected_" + after_split
                 )
 
             # if book_date:
@@ -154,14 +156,18 @@ class AioTime:
         time_menu.adjust(4)
         return time_menu.as_markup()
 
-    async def process_selection(self, query: CallbackQuery, data: CallbackData) -> tuple[
+    async def process_selection(self, query: CallbackQuery, data: CallbackData, user_choice=None) -> tuple[
         bool, Optional[datetime.datetime]]:
         result_data = (False, None)
         data = data.dict()
+        # data = data
         action = data.get("action")
         if action == TimeAction.ignore:
             await query.answer(text="Время прошло!", cache_time=30)
-
+        elif action == TimeAction.time:
+            pass
+        #     await query.message.delete_reply_markup()
+            await query.message.edit_reply_markup(reply_markup=self.get_time(label_table=data.get("time")))
         return result_data
 
 # def time_until_end_of_day(dt=None):

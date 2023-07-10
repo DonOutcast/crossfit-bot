@@ -87,7 +87,7 @@ class Controller(object):
             cat_router,
             poll_router,
             test_router,
-            # error_router,
+            error_router,
         ]
         for router in routers:
             self.dp.include_router(router)
@@ -109,10 +109,7 @@ class Controller(object):
             await self._on_startup(settings.admins)
             await self.bot.delete_webhook(drop_pending_updates=True)
             await self.dp.start_polling(self.bot, allowed_updates=self.dp.resolve_used_update_types())
-
-            # await self._start_tortoise()
         except exceptions as ex:
             print(ex)
         finally:
             await self.bot.session.close()
-            # await self._stop_tortoise()

@@ -48,9 +48,21 @@ async def if_user_exists(session: AsyncSession, account_id: int) -> bool:
 
 
 async def get_calendar_date_by_user(session: AsyncSession, user_id):
-    query = select(Calendar).where(Calendar.user_id == user_id)
+    query = select(Calendar.choice_time).where(Calendar.user_id == user_id)
     response = await session.execute(query)
-    return response.scalar()
+    response = response.scalars()
+    return response.all()
+
+
+async def add_user_event_time(session: AsyncSession, user_id, time):
+    query = Calendar(
+        user_id=user_id,
+        choice_time=time
+    )
+    session.add(query)
+    await session.commit()
+    return time.strftime("%H").split()[0]
+
 
 # async def add_user(
 #         user_name: str,

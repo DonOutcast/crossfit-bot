@@ -42,6 +42,7 @@ from sqlalchemy import (
     String,
     Column,
     Date,
+    Time,
     LargeBinary,
     DateTime,
     Boolean,
@@ -53,7 +54,7 @@ Base = declarative_base()
 
 
 class User(Base):
-    __tablename__ = "User"
+    __tablename__ = "user"
     id = Column(Integer(), primary_key=True, autoincrement=True)
     user_name = Column(String(70), unique=True)
     account_id = Column(Integer(), unique=True)
@@ -65,9 +66,9 @@ class User(Base):
 
 
 class Target(Base):
-    __tablename__ = "Target"
+    __tablename__ = "target"
     __table_args__ = (
-        ForeignKeyConstraint(['user_id'], ["User.id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(['user_id'], ["user.id"], ondelete="CASCADE"),
     )
     id = Column(Integer(), primary_key=True, autoincrement=True)
     user_id = Column(Integer())
@@ -80,8 +81,9 @@ class Target(Base):
 class Calendar(Base):
     __tablename__ = "calendar"
     __table_args__ = (
-        ForeignKeyConstraint(["user_id"], ["User.id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(["user_id"], ["user.account_id"], ondelete="CASCADE"),
     )
     id = Column(Integer(), primary_key=True, autoincrement=True)
     user_id = Column(Integer())
-    choice_date = Date()
+    choice_date = Column(Date(), nullable=True)
+    choice_time = Column(Time())
