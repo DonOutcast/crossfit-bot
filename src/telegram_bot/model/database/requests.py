@@ -65,9 +65,19 @@ async def add_user_event_time(session: AsyncSession, user_id, time):
     await session.commit()
     return time.strftime("%H").split()[0]
 
-async def add_selected_date(session: AsyncSession, account_id):
-    query =
 
+async def add_selected_date(session: AsyncSession, selected_date):
+    query = CalendarDate(
+        choice_date=selected_date
+    )
+    session.add(query)
+    await session.commit()
+
+
+async def get_all_days(session: AsyncSession):
+    query = select(CalendarDate)
+    response = await session.execute(query)
+    return response.scalars().all()
 
 # async def add_user(
 #         user_name: str,

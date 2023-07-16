@@ -99,7 +99,7 @@ class CalendarDate(Base):
 class UserCalendarDate(Base):
     __tablename__ = "user_calendar_date"
     __table_args__ = (
-        ForeignKeyConstraint(["user_id"], ["user.account_id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(["user_id"], ["user.id"], ondelete="CASCADE"),
         ForeignKeyConstraint(["date_id"], ["calendar_date.date_id"], ondelete="CASCADE"),
         PrimaryKeyConstraint("user_id", "date_id"),
     )

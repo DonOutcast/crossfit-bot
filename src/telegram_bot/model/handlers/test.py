@@ -8,7 +8,12 @@ from model.call_back_data import DateCallbackData, AioTimeCallbackData
 from model.fsm import TaskStates
 from model.fsm.login import LoginStates
 from model.utils import check_float_value
-from model.database.requests import get_calendar_date_by_user, add_user_event_time
+from model.database.requests import (
+    add_user_event_time,
+    get_calendar_date_by_user,
+    add_selected_date,
+    get_all_days,
+)
 
 from model.keyboards import (
     back_to_menu,
@@ -39,7 +44,9 @@ AioCalendar.configure(config)
 
 
 @test_router.message(F.text == "Тест", flags=headers)
-async def cmd_tasks(message: Message):
+async def cmd_tasks(message: Message, session: AsyncSession):
+    result = await get_all_days(session=session)
+    print(result)
     cal = AioCalendar(datetime.now().year, datetime.now().month)
     # cal.all_days = True
     await message.answer(
@@ -82,7 +89,9 @@ async def catch_calendar(query: CallbackQuery, callback_data: CallbackData) -> N
     )
 )
 async def get_test_simple_time(query: CallbackQuery, callback_data: CallbackData, session: AsyncSession) -> None:
-    result = await AioCalendar(
+    result = await get_all_days(session=session)
+    print(result)
+    await AioCalendar(
         callback_data.dict().get("year"),
         callback_data.dict().get("month")
     ).process_selection(query, callback_data)

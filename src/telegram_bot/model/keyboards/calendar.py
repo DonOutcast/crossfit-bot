@@ -318,7 +318,7 @@ class AioCalendar:
                     *temp,
                     width=7)
 
-    def _create_day_with_current_date(self, date: datetime = datetime.now()):
+    def _create_day_with_current_date(self, date: datetime = datetime.now(), list_choices_days: Optional[list] = None):
         date_now = TIME_ZONE_STATIC_TZ.localize(date)
         first_day = date_now.weekday()
         count_days = monthrange(date_now.year, date_now.month)[1]
@@ -338,6 +338,10 @@ class AioCalendar:
                 month = date_now.month
                 year = date_now.year
 
+                label_day = f"{day}🗓"
+                if list_choices_days and day in list_choices_days:
+                    label_day = f"{day}🔰"
+
                 if not self.all_days:
                     if year < dt_now.year or (year == dt_now.year and month < dt_now.month) or (
                             year == dt_now.year and month == dt_now.month and day < dt_now.day):
@@ -350,7 +354,7 @@ class AioCalendar:
                     else:
                         line.append(
                             InlineKeyboardButton(
-                                text=f"{day}🗓",
+                                text=label_day,
                                 callback_data=AioCalendarCallbackData(
                                     action=CalendarAction.day,
                                     year=self.year,
@@ -362,7 +366,7 @@ class AioCalendar:
                 else:
                     line.append(
                         InlineKeyboardButton(
-                            text=f"{day}🗓",
+                            text=label_day,
                             callback_data=AioCalendarCallbackData(
                                 action=CalendarAction.day,
                                 year=self.year,
