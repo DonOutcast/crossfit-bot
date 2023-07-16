@@ -6,7 +6,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .models import (
     User,
     Target,
-    Calendar
+    Calendar,
+    CalendarDate,
+
 )
 
 
@@ -62,6 +64,9 @@ async def add_user_event_time(session: AsyncSession, user_id, time):
     session.add(query)
     await session.commit()
     return time.strftime("%H").split()[0]
+
+async def add_selected_date(session: AsyncSession, account_id):
+    query =
 
 
 # async def add_user(

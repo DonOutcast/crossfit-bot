@@ -46,7 +46,8 @@ from sqlalchemy import (
     LargeBinary,
     DateTime,
     Boolean,
-    ForeignKeyConstraint
+    ForeignKeyConstraint,
+    PrimaryKeyConstraint
 )
 from sqlalchemy.orm import declarative_base
 
@@ -87,3 +88,26 @@ class Calendar(Base):
     user_id = Column(Integer())
     choice_date = Column(Date(), nullable=True)
     choice_time = Column(Time())
+
+
+class CalendarDate(Base):
+    __tablename__ = "calendar_date"
+    date_id = Column(Integer(), primary_key=True, autoincrement=True)
+    choice_date = Column(Date(), nullable=True)
+
+
+class UserCalendarDate(Base):
+    __tablename__ = "user_calendar_date"
+    __table_args__ = (
+        ForeignKeyConstraint(["user_id"], ["user.account_id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(["date_id"], ["calendar_date.date_id"], ondelete="CASCADE"),
+        PrimaryKeyConstraint("user_id", "date_id"),
+    )
+    user_id = Column(Integer(), nullable=False)
+    date_id = Column(Integer(), nullable=False)
+
+
+
+
+
+
