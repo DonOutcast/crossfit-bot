@@ -1,15 +1,9 @@
 import logging
+from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from .models import (
-    User,
-    Target,
-    Calendar,
-    CalendarDate,
-
-)
+from .models import *
 
 
 async def add_user(
@@ -66,16 +60,43 @@ async def add_user_event_time(session: AsyncSession, user_id, time):
     return time.strftime("%H").split()[0]
 
 
-async def add_selected_date(session: AsyncSession, selected_date):
-    query = CalendarDate(
-        choice_date=selected_date
-    )
-    session.add(query)
-    await session.commit()
+async def add_selected_date(session: AsyncSession, selected_date, user_account: int):
+    try:
+        user_id = await get_user_id_by_account_id(session, user_account)
+        calendar_date_query = CalendarDate(
+            choice_date=selected_date
+        )
+        session.add(calendar_date_query)
+        await session.commit()
+        user_calendar_date_query = UserCalendarDate(user_id=user_id, date_id=calendar_date_query.date_id)
+        session.add(user_calendar_date_query)
+        await session.commit()
+    except Exception as e:
+        logging.exception(f"Не удалось добавить дату для account_id {user_account}", exc_info=e)
+
+
+async def get_user_id_by_account_id(session: AsyncSession, user_account: int) -> Optional[int]:
+    result = None
+    try:
+        query = select(User.id).filter_by(account_id=user_account)
+        user_id = await session.execute(query)
+        result = user_id.scalar_one()
+    except Exception as e:
+        logging.exception(f"Не удалось получить id по account_id {user_account}", exc_info=e)
+
+    return result
+
+
+# query = CalendarDate(
+#     choice_date=selected_date
+# )
+# session.add(query)
+# await session.flush()
+# await session.commit()
 
 
 async def get_all_days(session: AsyncSession):
-    query = select(CalendarDate)
+    query = select(CalendarDate.choice_date)
     response = await session.execute(query)
     return response.scalars().all()
 

@@ -47,11 +47,34 @@ from sqlalchemy import (
     DateTime,
     Boolean,
     ForeignKeyConstraint,
-    PrimaryKeyConstraint
+    PrimaryKeyConstraint,
+    Table,
 )
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import (
+    declarative_base,
+    relationship,
+)
 
 Base = declarative_base()
+
+__all__ = [
+    "UserCalendarDate",
+    "User",
+    "CalendarDate",
+    "Calendar",
+    "Target",
+]
+
+
+class UserCalendarDate(Base):
+    __tablename__ = "user_calendar_date"
+    __table_args__ = (
+        ForeignKeyConstraint(["user_id"], ["user.id"], ondelete="CASCADE"),
+        ForeignKeyConstraint(["date_id"], ["calendar_date.date_id"], ondelete="CASCADE"),
+        PrimaryKeyConstraint("user_id", "date_id"),
+    )
+    user_id = Column(Integer(), nullable=False)
+    date_id = Column(Integer(), nullable=False)
 
 
 class User(Base):
@@ -64,6 +87,24 @@ class User(Base):
     image = Column(String(250))
     height = Column(Float(), nullable=True)
     weight = Column(Float(), nullable=True)
+
+    calendar_dates = relationship(
+        "CalendarDate",
+        secondary=UserCalendarDate.__tablename__,
+        back_populates="users"
+    )
+
+
+class CalendarDate(Base):
+    __tablename__ = "calendar_date"
+    date_id = Column(Integer(), primary_key=True, autoincrement=True)
+    choice_date = Column(Date(), nullable=True)
+
+    users = relationship(
+        "User",
+        secondary=UserCalendarDate.__tablename__,
+        back_populates="calendar_dates"
+    )
 
 
 class Target(Base):
@@ -88,26 +129,3 @@ class Calendar(Base):
     user_id = Column(Integer())
     choice_date = Column(Date(), nullable=True)
     choice_time = Column(Time())
-
-
-class CalendarDate(Base):
-    __tablename__ = "calendar_date"
-    date_id = Column(Integer(), primary_key=True, autoincrement=True)
-    choice_date = Column(Date(), nullable=True)
-
-
-class UserCalendarDate(Base):
-    __tablename__ = "user_calendar_date"
-    __table_args__ = (
-        ForeignKeyConstraint(["user_id"], ["user.id"], ondelete="CASCADE"),
-        ForeignKeyConstraint(["date_id"], ["calendar_date.date_id"], ondelete="CASCADE"),
-        PrimaryKeyConstraint("user_id", "date_id"),
-    )
-    user_id = Column(Integer(), nullable=False)
-    date_id = Column(Integer(), nullable=False)
-
-
-
-
-
-

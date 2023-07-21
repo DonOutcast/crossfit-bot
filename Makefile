@@ -14,4 +14,7 @@ down:
 logs:
 	docker-compose -f $(COMPOSE_FILE) logs -f
 
+clear_db:
+	alembic downgrade base
+
 

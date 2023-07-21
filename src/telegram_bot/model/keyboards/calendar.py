@@ -3,7 +3,12 @@ from typing import List, Optional
 
 import pytz
 import calendar
-from datetime import datetime, timedelta
+import datetime
+# from datetime import (
+#     datetime,
+#     timedelta,
+#     date
+# )
 import logging.config
 
 from aiogram.filters.callback_data import CallbackData
@@ -113,12 +118,14 @@ class AioCalendar:
             self,
             year: int,
             month: int,
-            all_days: bool = False
+            all_days: bool = False,
+            selected_days: Optional[list[datetime.date]] = None,
     ):
         self._all_days = all_days
         self.builder = InlineKeyboardBuilder()
         self.year = year
         self.month = month
+        self.selected_days = selected_days
 
     @classmethod
     def configure(cls, config: dict):
@@ -190,7 +197,7 @@ class AioCalendar:
             width=7
         )
         self._create_day_with_current_date(
-            datetime(
+            datetime.datetime(
                 year=self.year,
                 month=self.month,
                 day=1
@@ -213,8 +220,8 @@ class AioCalendar:
             text="Teкущая дата",
             callback_data=AioCalendarCallbackData(
                 action=CalendarAction.today,
-                year=datetime.today().year,
-                month=datetime.today().month,
+                year=datetime.datetime.today().year,
+                month=datetime.datetime.today().month,
                 day=0,
             ).pack()
         )
@@ -318,12 +325,13 @@ class AioCalendar:
                     *temp,
                     width=7)
 
-    def _create_day_with_current_date(self, date: datetime = datetime.now(), list_choices_days: Optional[list] = None):
+    def _create_day_with_current_date(self, date: datetime = datetime.datetime.now(),
+                                      list_choices_days: Optional[list] = None):
         date_now = TIME_ZONE_STATIC_TZ.localize(date)
         first_day = date_now.weekday()
         count_days = monthrange(date_now.year, date_now.month)[1]
         line = []
-        dt_now = datetime.now()
+        dt_now = datetime.datetime.now()
         month_calendar = calendar.monthcalendar(self.year, self.month)
         for number_of_day in range(len(month_calendar) * 7):
             if number_of_day < first_day or number_of_day > count_days + first_day - 1:
@@ -338,7 +346,11 @@ class AioCalendar:
                 month = date_now.month
                 year = date_now.year
 
+                print(f'DAY MONTH {datetime.date(year, month, day)}')
                 label_day = f"{day}🗓"
+                if datetime.date(year, month, day) in self.selected_days:
+                    label_day = f"{day}🔰"
+
                 if list_choices_days and day in list_choices_days:
                     label_day = f"{day}🔰"
 
@@ -380,33 +392,34 @@ class AioCalendar:
                 self.builder.row(*line, width=7)
                 line = []
 
-    async def process_selection(self, query: CallbackQuery, data: CallbackData) -> tuple[bool, Optional[datetime]]:
+    async def process_selection(self, query: CallbackQuery, data: CallbackData) -> tuple[bool, Optional[datetime.date]]:
         result_data = (False, None)
         data = data.dict()
         action = data.get("action")
         if action == CalendarAction.ignore:
             await query.answer(cache_time=30)
         elif action == CalendarAction.next_month:
-            temp_date = datetime(self.year, data.get("month"), 1)
-            next_month = temp_date + timedelta(31)
+            temp_date = datetime.datetime(self.year, data.get("month"), 1)
+            next_month = temp_date + datetime.timedelta(31)
             self.month = next_month.month
             await query.message.edit_reply_markup(reply_markup=self.get_calendar())
         elif action == CalendarAction.preview_month:
-            temp_date = datetime(self.year, data.get("month"), 1)
-            preview_month = temp_date - timedelta(1)
+            temp_date = datetime.datetime(self.year, data.get("month"), 1)
+            preview_month = temp_date - datetime.timedelta(1)
             self.month = preview_month.month
             await query.message.edit_reply_markup(reply_markup=self.get_calendar())
         elif action == CalendarAction.next_year:
-            next_year = datetime(data.get("year") + 1, data.get("month"), 1)
+            next_year = datetime.datetime(data.get("year") + 1, data.get("month"), 1)
             self.year = next_year.year
             await query.message.edit_reply_markup(reply_markup=self.get_calendar())
         elif action == CalendarAction.preview_year:
-            preview_year = datetime(data.get("year") - 1, data.get("month"), 1)
+            preview_year = datetime.datetime(data.get("year") - 1, data.get("month"), 1)
             self.year = preview_year.year
             await query.message.edit_reply_markup(reply_markup=self.get_calendar())
         else:
             await query.message.delete_reply_markup()
-            result_data = True, datetime(int(data.get("year")), int(data.get("month")), int(data.get("day")))
+            result_data = True, datetime.datetime(int(data.get("year")), int(data.get("month")),
+                                                  int(data.get("day"))).date()
         return result_data
 
 
@@ -481,7 +494,7 @@ def create_month_buttons(date_now):
 
 def create_day_buttons(date_now, first_day, count_days):
     line = []
-    dt_now = datetime.now()
+    dt_now = datetime.datetime.now()
 
     for number_of_day in range(5 * 7):
         if number_of_day < first_day or number_of_day > count_days + first_day - 1:
@@ -516,7 +529,7 @@ def get_today_date(date_now: datetime) -> List[InlineKeyboardButton]:
     ]
 
 
-def get_date(date: datetime = datetime.now()) -> InlineKeyboardMarkup:
+def get_date(date: datetime = datetime.datetime.now()) -> InlineKeyboardMarkup:
     date_now = TIME_ZONE_STATIC_TZ.localize(date)
     # line_year = create_year_buttons(date_now)
     line_days = get_days_buttons()

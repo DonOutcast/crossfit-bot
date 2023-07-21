@@ -46,8 +46,8 @@ AioCalendar.configure(config)
 @test_router.message(F.text == "Тест", flags=headers)
 async def cmd_tasks(message: Message, session: AsyncSession):
     result = await get_all_days(session=session)
-    print(result)
-    cal = AioCalendar(datetime.now().year, datetime.now().month)
+    print(f"ALL DAYS {result}")
+    cal = AioCalendar(datetime.now().year, datetime.now().month, selected_days=result)
     # cal.all_days = True
     await message.answer(
         text="🗓 Выберите интересующую вас дату:",
@@ -89,12 +89,14 @@ async def catch_calendar(query: CallbackQuery, callback_data: CallbackData) -> N
     )
 )
 async def get_test_simple_time(query: CallbackQuery, callback_data: CallbackData, session: AsyncSession) -> None:
-    result = await get_all_days(session=session)
-    print(result)
-    await AioCalendar(
+    # result = await get_all_days(session=session)
+
+    selected_date = await AioCalendar(
         callback_data.dict().get("year"),
         callback_data.dict().get("month")
     ).process_selection(query, callback_data)
+
+    await add_selected_date(session, selected_date=selected_date[-1], user_account=query.from_user.id)
     await query.message.delete()
     await query.message.answer(text="Выберите время ", reply_markup=AioTime().get_time())
 

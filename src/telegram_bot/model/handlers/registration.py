@@ -33,5 +33,4 @@ async def user_start(message: Message):
 @personal_cabinet_router.message(Command(commands="categories"), flags=headers)
 async def show_list_categories(message: Message):
     """Отправляет список категорий расходов"""
-    categories = Categories().get_all_categories()
-    await message.answer(text=render.render_template("category.html", {"categories": categories}))
+    pass
