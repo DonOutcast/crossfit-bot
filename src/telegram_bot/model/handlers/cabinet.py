@@ -1,25 +1,14 @@
-from datetime import datetime
-
 from aiogram import Router, F
 from aiogram.filters.callback_data import CallbackData
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from model.keyboards.calendar import get_date
-from model.utils import check_float_value
-from model.fsm import TaskStates
 from model.template.templates import render
-from model.database.requests import (
-    add_user,
-    get_users_list, if_user_exists,
-)
 
 from model.fsm import TaskStates
 
 from images import (
     TYPE_MARKUP,
-    WELCOME_TO_CABINET,
     GOOD_BY,
 )
 
@@ -94,7 +83,7 @@ async def cmd_task_name(message: Message, state: FSMContext) -> None:
         )
         await message.answer(
             text="Crossfit\n    Kzn",
-            reply_markup=get_date()
+            # reply_markup=get_date()
         )
         await state.set_state(TaskStates.begin)
     else:
@@ -109,7 +98,7 @@ async def cmd_task_name(message: Message, state: FSMContext) -> None:
 async def cmd_task_begin_date(message: Message, state: FSMContext) -> None:
     await message.answer(
         text="Crossfit\n    Kzn",
-        reply_markup=get_date()
+        # reply_markup=get_date()
     )
 
 
@@ -117,7 +106,7 @@ async def cmd_task_begin_date(message: Message, state: FSMContext) -> None:
 async def refresh_date(query: CallbackQuery, callback_data: CallbackData) -> None:
     await query.message.edit_reply_markup(
         inline_message_id=query.inline_message_id,
-        reply_markup=get_date(datetime.strptime(callback_data.dict().get("date"), "%Y/%m")),
+        # reply_markup=get_date(datetime.strptime(callback_data.dict().get("date"), "%Y/%m")),
     )
 
 

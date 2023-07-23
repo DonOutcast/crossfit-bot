@@ -1,2 +1,2 @@
-from .requests import *
+from model.database.request.requests import *
 

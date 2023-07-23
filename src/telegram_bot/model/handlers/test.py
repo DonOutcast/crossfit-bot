@@ -1,28 +1,15 @@
 from aiogram import Router, F
 from aiogram.filters.callback_data import CallbackData
-from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, WebAppInfo, CallbackQuery
+from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from model.call_back_data import DateCallbackData, AioTimeCallbackData
-from model.fsm import TaskStates
-from model.fsm.login import LoginStates
-from model.utils import check_float_value
-from model.database.requests import (
-    add_user_event_time,
-    get_calendar_date_by_user,
-    add_selected_date,
-    get_all_days,
-)
+from model.call_back_data import AioTimeCallbackData
+from model.database.request import *
 
 from model.keyboards import (
-    back_to_menu,
-    personal_cabinet_keyboard,
     AioTime,
 )
 from model.keyboards.calendar import (
-    get_date,
-    get_time,
     AioCalendar,
     AioCalendarCallbackData,
 )
@@ -46,7 +33,6 @@ AioCalendar.configure(config)
 @test_router.message(F.text == "Тест", flags=headers)
 async def cmd_tasks(message: Message, session: AsyncSession):
     result = await get_all_days(session=session)
-    print(f"ALL DAYS {result}")
     cal = AioCalendar(year=datetime.now().year, month=datetime.now().month)
     # cal.all_days = True
     await message.answer(
@@ -70,12 +56,13 @@ async def cmd_tasks(message: Message, session: AsyncSession):
         )
     )
 )
-async def catch_calendar(query: CallbackQuery, callback_data: CallbackData) -> None:
+async def catch_calendar(query: CallbackQuery, callback_data: CallbackData, session: AsyncSession) -> None:
     # AioCalendar.all_days = True
+    result = await get_all_days(session=session)
     await AioCalendar(
         callback_data.dict().get("year"),
         callback_data.dict().get("month")
-    ).process_selection(query, callback_data)
+    ).process_selection(query, callback_data, selected_days=result)
 
 
 @test_router.callback_query(
@@ -101,12 +88,38 @@ async def get_test_simple_time(query: CallbackQuery, callback_data: CallbackData
     await query.message.answer(text="Выберите время ", reply_markup=AioTime().get_time())
 
 
-@test_router.callback_query(DateCallbackData.filter(F.type == "refresh"))
-async def refresh_date(query: CallbackQuery, callback_data: CallbackData) -> None:
-    await query.message.edit_reply_markup(
-        inline_message_id=query.inline_message_id,
-        reply_markup=get_date(datetime.strptime(callback_data.dict().get("date"), "%Y/%m")),
+@test_router.callback_query(
+    AioCalendarCallbackData.filter(
+        F.action.in_(
+            {
+              "SELECTED",
+            }
+        )
     )
+)
+async def remove_selected_day_from_calendar(
+        query: CallbackQuery,
+        callback_data: CallbackData,
+        session: AsyncSession
+) -> None:
+
+    result = await AioCalendar(
+        callback_data.dict().get("year"),
+        callback_data.dict().get("month")
+    ).process_selection(query, callback_data)
+    print(f"RESULT I AM in HERE {result}")
+    await remove_selected_date(session, selected_date=result[-1], user_account=query.from_user.id)
+
+    await query.message.delete()
+    await query.message.answer(text="Выберите время ", reply_markup=AioTime().get_time())
+
+
+# @test_router.callback_query(DateCallbackData.filter(F.type == "refresh"))
+# async def refresh_date(query: CallbackQuery, callback_data: CallbackData) -> None:
+#     await query.message.edit_reply_markup(
+#         inline_message_id=query.inline_message_id,
+#         reply_markup=get_date(datetime.strptime(callback_data.dict().get("date"), "%Y/%m")),
+#     )
 
 
 # @test_router.callback_query(

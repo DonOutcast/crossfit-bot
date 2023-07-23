@@ -1,4 +1,4 @@
-from aiogram import Router, F, Bot
+from aiogram import Router, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -8,7 +8,7 @@ from model.utils import check_float_value
 from model.template.templates import render
 from model.keyboards import get_type_keyboards
 
-from model.database.requests import (
+from model.database.request.requests import (
     add_user,
     if_user_exists,
 )

@@ -103,7 +103,8 @@ class CalendarDate(Base):
     users = relationship(
         "User",
         secondary=UserCalendarDate.__tablename__,
-        back_populates="calendar_dates"
+        back_populates="calendar_dates",
+        passive_deletes=True
     )
 
 

@@ -1,9 +1,9 @@
 import logging
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, delete, insert, and_
 from sqlalchemy.ext.asyncio import AsyncSession
-from .models import *
+from model.database.models import *
 
 
 async def add_user(
@@ -84,6 +84,23 @@ async def get_user_id_by_account_id(session: AsyncSession, user_account: int) ->
     except Exception as e:
         logging.exception(f"Не удалось получить id по account_id {user_account}", exc_info=e)
 
+    return result
+
+
+async def remove_selected_date(session: AsyncSession, selected_date, user_account: int) -> bool:
+    result = False
+    try:
+        calendar_date_query = delete(CalendarDate).where(
+            CalendarDate.choice_date == selected_date
+        ).where(
+            CalendarDate.users.any(User.account_id == user_account)
+        )
+        await session.execute(calendar_date_query)
+        await session.commit()
+        result = True
+    except Exception as e:
+        logging.exception(f"Не удалось удалить дату для account_id {user_account}", exc_info=e)
+        result = False
     return result
 
 
