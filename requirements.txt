@@ -44,6 +44,8 @@ click==8.1.3
     # via
     #   aerich
     #   pip-tools
+coverage==7.2.7
+    # via -r requirements.in
 dictdiffer==0.9.0
     # via aerich
 exceptiongroup==1.1.2
