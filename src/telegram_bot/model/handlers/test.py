@@ -47,12 +47,12 @@ AioCalendar.configure(config)
 async def cmd_tasks(message: Message, session: AsyncSession):
     result = await get_all_days(session=session)
     print(f"ALL DAYS {result}")
-    cal = AioCalendar(datetime.now().year, datetime.now().month, selected_days=result)
+    cal = AioCalendar(year=datetime.now().year, month=datetime.now().month)
     # cal.all_days = True
     await message.answer(
         text="🗓 Выберите интересующую вас дату:",
         # reply_markup=get_date(),
-        reply_markup=cal.get_calendar()
+        reply_markup=cal.get_calendar(selected_days=result)
     )
 
 

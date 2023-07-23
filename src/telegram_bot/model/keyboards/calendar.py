@@ -119,13 +119,11 @@ class AioCalendar:
             year: int,
             month: int,
             all_days: bool = False,
-            selected_days: Optional[list[datetime.date]] = None,
     ):
         self._all_days = all_days
         self.builder = InlineKeyboardBuilder()
         self.year = year
         self.month = month
-        self.selected_days = selected_days
 
     @classmethod
     def configure(cls, config: dict):
@@ -185,6 +183,7 @@ class AioCalendar:
 
     def get_calendar(
             self,
+            selected_days: Optional[list[datetime.date]] = None,
     ) -> InlineKeyboardMarkup:
         self.builder.row(
             self._get_preview_month(1),
@@ -197,11 +196,7 @@ class AioCalendar:
             width=7
         )
         self._create_day_with_current_date(
-            datetime.datetime(
-                year=self.year,
-                month=self.month,
-                day=1
-            )
+            selected_days=selected_days
         )
         self.builder.row(
             self._get_preview_year(0),
@@ -298,6 +293,17 @@ class AioCalendar:
             callback_data=self._get_ignore_callback()
         )
 
+    def _get_button_with_label(self, label: str, day: int) -> InlineKeyboardButton:
+        return InlineKeyboardButton(
+            text=label,
+            callback_data=AioCalendarCallbackData(
+                action=CalendarAction.day,
+                year=self.year,
+                month=self.month,
+                day=day,
+            ).pack()
+        )
+
     def _get_days_of_month(self):
         month_calendar = calendar.monthcalendar(self.year, self.month)
         for week in month_calendar:
@@ -325,72 +331,35 @@ class AioCalendar:
                     *temp,
                     width=7)
 
-    def _create_day_with_current_date(self, date: datetime = datetime.datetime.now(),
-                                      list_choices_days: Optional[list] = None):
-        date_now = TIME_ZONE_STATIC_TZ.localize(date)
-        first_day = date_now.weekday()
-        count_days = monthrange(date_now.year, date_now.month)[1]
+    def _create_day_with_current_date(
+            self,
+            date_now: Optional[datetime.date] = datetime.datetime.now().date(),
+            selected_days: Optional[list[datetime.date]] = None
+    ):
         line = []
-        dt_now = datetime.datetime.now()
         month_calendar = calendar.monthcalendar(self.year, self.month)
-        for number_of_day in range(len(month_calendar) * 7):
-            if number_of_day < first_day or number_of_day > count_days + first_day - 1:
-                line.append(
-                    InlineKeyboardButton(
-                        text=" ",
-                        callback_data=self._get_ignore_callback()
+        for week in month_calendar:
+            for day in week:
+                if not day:
+                    line.append(
+                        InlineKeyboardButton(
+                            text=" ",
+                            callback_data=self._get_ignore_callback()
+                        )
                     )
-                )
-            else:
-                day = number_of_day - first_day + 1
-                month = date_now.month
-                year = date_now.year
-
-                print(f'DAY MONTH {datetime.date(year, month, day)}')
-                label_day = f"{day}🗓"
-                if datetime.date(year, month, day) in self.selected_days:
-                    label_day = f"{day}🔰"
-
-                if list_choices_days and day in list_choices_days:
-                    label_day = f"{day}🔰"
-
-                if not self.all_days:
-                    if year < dt_now.year or (year == dt_now.year and month < dt_now.month) or (
-                            year == dt_now.year and month == dt_now.month and day < dt_now.day):
+                else:
+                    current_date_day = datetime.date(self.year, self.month, day)
+                    label_day = f"{day}🔰" if selected_days is not None and current_date_day in selected_days else f"{day}🗓"
+                    if current_date_day < date_now:
                         line.append(
-                            InlineKeyboardButton(
-                                text=" ",
-                                callback_data=self._get_ignore_callback()
-                            )
+                            self._get_button_with_label(label_day, day)
                         )
                     else:
                         line.append(
-                            InlineKeyboardButton(
-                                text=label_day,
-                                callback_data=AioCalendarCallbackData(
-                                    action=CalendarAction.day,
-                                    year=self.year,
-                                    month=self.month,
-                                    day=day,
-                                ).pack()
-                            )
+                            self._get_button_with_label(label_day, day)
                         )
-                else:
-                    line.append(
-                        InlineKeyboardButton(
-                            text=label_day,
-                            callback_data=AioCalendarCallbackData(
-                                action=CalendarAction.day,
-                                year=self.year,
-                                month=self.month,
-                                day=day,
-                            ).pack()
-                        )
-                    )
 
-            if len(line) == 7:
-                self.builder.row(*line, width=7)
-                line = []
+        self.builder.row(*line, width=7)
 
     async def process_selection(self, query: CallbackQuery, data: CallbackData) -> tuple[bool, Optional[datetime.date]]:
         result_data = (False, None)
