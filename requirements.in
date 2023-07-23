@@ -16,6 +16,8 @@ load-dotenv==0.1.0
 lxml==4.9.2
 SQLAlchemy==2.0.15
 tortoise-orm[asyncpg]~=0.19.3
+pytest==7.4.0
+
 
 
 

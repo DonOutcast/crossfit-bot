@@ -55,8 +55,8 @@ class AioCalendar:
 
     def __init__(
             self,
-            year: int,
-            month: int,
+            year: Optional[int] = datetime.datetime.now().year,
+            month: Optional[int] = datetime.datetime.now().month,
             all_days: bool = False,
     ):
         self._all_days = all_days

@@ -33,7 +33,7 @@ AioCalendar.configure(config)
 @test_router.message(F.text == "Тест", flags=headers)
 async def cmd_tasks(message: Message, session: AsyncSession):
     result = await get_all_days(session=session)
-    cal = AioCalendar(year=datetime.now().year, month=datetime.now().month)
+    cal = AioCalendar()
     # cal.all_days = True
     await message.answer(
         text="🗓 Выберите интересующую вас дату:",

@@ -1,11 +1,11 @@
-from model.keyboards.inline_keyboards import get_type_keyboards
-from model.keyboards.core_buttons import (
+from .inline_keyboards import get_type_keyboards
+from .core_buttons import (
     generate_keyboard,
     generate_inline_keyboard,
     login_choice_keyboard,
     task_choice_keyboard,
 )
-from model.keyboards.time import AioTime
+from .time import AioTime
 
 personal_cabinet_keyboard = generate_keyboard(
     [

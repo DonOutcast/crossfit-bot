@@ -1,1 +1,0 @@
-__all__ = ["model", "configurate", "controller", "templates"]

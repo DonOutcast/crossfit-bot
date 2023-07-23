@@ -1,4 +1,4 @@
-from model.call_back_data.type import (
+from model.call_back_data import (
     TypeBeginnerCallBackData,
     TypeProceedingCallBackData,
     TypeProfessionalBackData
