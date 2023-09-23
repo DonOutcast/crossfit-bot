@@ -1,7 +1,8 @@
 import logging
 from typing import Optional
 
-from sqlalchemy import select, delete, insert, and_
+from sqlalchemy import delete, insert, and_
+from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from model.database.models import *
 
@@ -50,14 +51,24 @@ async def get_calendar_date_by_user(session: AsyncSession, user_id):
     return response.all()
 
 
-async def add_user_event_time(session: AsyncSession, user_id, time):
+async def get_time_by_choice_date(session: AsyncSession, user_day):
+    query = select(Calendar.choice_time).where(Calendar.choice_date == user_day)
+    return (await session.execute(query)).scalars().all()
+
+
+async def add_user_event_time(session: AsyncSession, user_id, user_time, user_date):
     query = Calendar(
         user_id=user_id,
-        choice_time=time
+        choice_time=user_time,
+        choice_date=user_date,
     )
     session.add(query)
     await session.commit()
-    return time.strftime("%H").split()[0]
+    return user_time.strftime("%H").split()[0]
+
+
+async def get_all_event_by_date(session: AsyncSession, date):
+    pass
 
 
 async def add_selected_date(session: AsyncSession, selected_date, user_account: int):

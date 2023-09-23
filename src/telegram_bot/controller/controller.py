@@ -4,7 +4,7 @@ from aiogram import exceptions
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiohttp import ClientTimeout
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from configurate.config import settings
 
@@ -29,7 +29,7 @@ from model.middlewares.aiohttp import AiohttpSessionMiddleware
 from model.middlewares.database import DbSessionMiddleware
 from model.services import broadcaster
 from model.commnad_scope.scopes import SetCommands
-
+from model.schedulers.user_notification import register
 
 # from model.database.config import DATABASE_CONFIG
 
@@ -39,6 +39,7 @@ class Controller(object):
     bot = Bot(settings.bot_token.get_secret_value(), parse_mode="HTML")
     storage = MemoryStorage
     dp = Dispatcher()
+    scheduler = AsyncIOScheduler()
 
     def __new__(cls):
         if cls.__instance is None:
@@ -101,6 +102,9 @@ class Controller(object):
 
         self.dp.message.outer_middleware(DbSessionMiddleware(session_maker))
         self.dp.callback_query.middleware(DbSessionMiddleware(session_maker))
+
+        # register(self.scheduler, self.bot)
+        # self.scheduler.start()
 
         try:
             await self.bot.delete_webhook()

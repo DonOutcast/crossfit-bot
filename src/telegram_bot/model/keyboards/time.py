@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 import pytz
 from enum import Enum
@@ -101,22 +101,12 @@ class AioTime:
             time=time.split(":")[0]
         ).pack()
 
-    def get_time(self, user_id=None, time=None, label_table=None) -> InlineKeyboardMarkup:
-        return self.build_keyboard_time(label_table)
+    def get_time(self, user_id=None, time=None, label_table=None,
+                 selected_days: Optional[List[datetime.date]] = None) -> InlineKeyboardMarkup:
+        return self.build_keyboard_time(label_table, selected_days)
 
-    def build_keyboard_time(self, label: str):
+    def build_keyboard_time(self, label: str, selected_day: Optional[List[datetime.date]] = None):
         import datetime
-        # if book_date and datetime.datetime.strptime(book_date, "%d/%m/%Y").date() != datetime.datetime.now().date():
-        #     step_count = 48
-        #     finished = datetime.timedelta(days=0)
-        # else:
-        #     step_count = 24
-        # left = time_until_end_of_day()
-        # time_delta_30_minute = datetime.timedelta(minutes=30)
-        # step_count = left // time_delta_30_minute
-        # remainder = left % time_delta_30_minute
-        # rounded = left - remainder
-        # finished = datetime.timedelta(days=1) - rounded
         time_menu = InlineKeyboardBuilder()
         finished = datetime.timedelta(days=0)
         step_count = 24
@@ -124,8 +114,11 @@ class AioTime:
         for i in range(step_count):
 
             after_split = ':'.join(str(finished).split(':')[:2])
-            if label is not None and after_split == label.split()[0]:
-                after_split = label
+            # if label is not None and after_split == label.split()[0]:
+            #     after_split = label
+            if selected_day is not None and datetime.datetime.strptime(after_split, "%H:%M").time() in selected_day or \
+                    label is not None and after_split == label:
+                after_split = f"{after_split} 🔰"
             if datetime.datetime.now() + finished < datetime.datetime.now():
                 after_split += self.hours.get(after_split, "")
                 button = InlineKeyboardButton(
@@ -139,24 +132,13 @@ class AioTime:
                     # callback_data="selected_" + after_split
                 )
 
-            # if book_date:
-            #     call_back_data = f"super_{after_split}_{str(book_date).split(' ')[0]}"
-            # else:
-            #     call_back_data = f"revers_{after_split}"
-
             finished += datetime.timedelta(hours=1)
-            # time_menu.button(
-            #     button
-            # )
             time_menu.add(button)
-        # current_count = 4 - len(list(time_menu.buttons)) % 4
-        # for _ in range(current_count):
-        #     time_menu.button(text=" ", callback_data="⏹")
 
         time_menu.adjust(4)
         return time_menu.as_markup()
 
-    async def process_selection(self, query: CallbackQuery, data: CallbackData, user_choice=None) -> tuple[
+    async def process_selection(self, query: CallbackQuery, data: CallbackData, selected_days=None) -> tuple[
         bool, Optional[datetime.datetime]]:
         result_data = (False, None)
         data = data.dict()
@@ -165,9 +147,10 @@ class AioTime:
         if action == TimeAction.ignore:
             await query.answer(text="Время прошло!", cache_time=30)
         elif action == TimeAction.time:
-            pass
-        #     await query.message.delete_reply_markup()
-            await query.message.edit_reply_markup(reply_markup=self.get_time(label_table=data.get("time")))
+            #     await query.message.delete_reply_markup()
+            await query.message.edit_reply_markup(
+                reply_markup=self.get_time(label_table=data.get("time"), selected_days=selected_days)
+            )
         return result_data
 
 # def time_until_end_of_day(dt=None):
